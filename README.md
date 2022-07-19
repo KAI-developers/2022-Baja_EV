@@ -1,2 +1,7 @@
-# TorqueVectoringSystem
-Controlling 4-wheel independent driving car including Management System and autunomous driving straight line.
+# 2022 Team K.A.I. 개발파트 작업공간
+
+개발 목록
+
+1. 4륜 독립 구동 자동차의 선회능력 향상을 위한 토크 벡터링 시스템
+2. 차량 운동 상태, 배터리 상태, 현위치, 추천 속도 등 주행 시 유용한 정보를 관제, 드라이버 쪽에 표시해주는 매니지먼트 시스템
+3. 직선 코스를 시속 40km/h 이상까지 달리는 자율주행 시스템
