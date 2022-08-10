@@ -437,6 +437,7 @@ void TorqueVectoringSystem::process_accel(
 
 
     while(1) {
+        pc.printf("entered WHILE : \r\n");
 
         f_motor_RPM_FL = FL_Hall_A.getRPM();
         f_motor_RPM_FR = FR_Hall_A.getRPM();
@@ -444,6 +445,7 @@ void TorqueVectoringSystem::process_accel(
         f_motor_RPM_RR = RR_Hall_A.getRPM();
         
         pc.printf("FL RPM : %f, FR RPM : %f, RL RPM : %f, RR RPM : %f\r\n", f_motor_RPM_FL, f_motor_RPM_FR, f_motor_RPM_RL, f_motor_RPM_RR);
+
 
 
         f_vel_FL_ms = CvtRPM2Vel(f_motor_RPM_FL);
@@ -458,20 +460,22 @@ void TorqueVectoringSystem::process_accel(
         f_vehicle_vel_ms = CalAvgVel(f_vel_RR_ms, f_vel_RL_ms);
 
         pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
-        
+
+
+
     
         // f_steering_sensor_value 받기!
         pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
 
         f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
 
-        pc.printf("wheel angle : %f\r\n\n",f_wheel_angle_deg);
+        pc.printf("wheel angle : %f\r\n",f_wheel_angle_deg);
         
 
 
         f_yawrate_input_deg = CalInputYawRate(f_vehicle_vel_ms, f_wheel_angle_deg);
 
-        pc.printf("input yaw rate : %f \r\n", f_yawrate_input_deg);
+        pc.printf("target yaw rate : %f \t\t", f_yawrate_input_deg);
 
         
         ///////////////////////////////////////////
@@ -496,7 +500,7 @@ void TorqueVectoringSystem::process_accel(
             f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
             f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
 
-        pc.printf("calculated input torque : \r\n");
+        pc.printf("feedforward torque : \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
         
         PIDYawRate2Torque(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
@@ -518,10 +522,10 @@ void TorqueVectoringSystem::process_accel(
         */
 
         //f_motor_current 받기!
-        f_motor_current_FL_A = ReadCurrentSensor(FL_Currnet_OUT.read());
-        f_motor_current_FR_A = ReadCurrentSensor(FR_Currnet_OUT.read());
-        f_motor_current_RL_A = ReadCurrentSensor(RL_Currnet_OUT.read());
-        f_motor_current_RR_A = ReadCurrentSensor(RR_Currnet_OUT.read());
+        f_motor_current_FL_A = ReadCurrentSensor(FL_Current_OUT.read());
+        f_motor_current_FR_A = ReadCurrentSensor(FR_Current_OUT.read());
+        f_motor_current_RL_A = ReadCurrentSensor(RL_Current_OUT.read());
+        f_motor_current_RR_A = ReadCurrentSensor(RR_Current_OUT.read());
 
 
         pc.printf("current value \r\n");
