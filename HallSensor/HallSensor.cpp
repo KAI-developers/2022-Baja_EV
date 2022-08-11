@@ -3,7 +3,7 @@
 #define MOTOR_POLE  7
 
  
-HallSensor::HallSensor (PinName a) : m_hallSensor (a,PullUp)
+HallSensor::HallSensor (PinName a) : m_hallSensor (a)
 {
     float fDummy_sec = 1000.0;
     edgestate = 0;
