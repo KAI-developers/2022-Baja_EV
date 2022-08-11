@@ -72,7 +72,7 @@ TorqueVectoringSystem::TorqueVectoringSystem()
     f_PWM_input_RL = 0.0;
     f_PWM_input_RR = 0.0;
 
-    gx = 0.0, gy = 0.0, gz = 0.0, ax = 0.0, ay = 0.0, az = 0.0;
+    IMU_gx = 0.0, IMU_gy = 0.0, IMU_gz = 0.0, IMU_ax = 0.0, IMU_ay = 0.0, IMU_az = 0.0;
     f_yawrate_meas_degs = 0.0;
     
 }
@@ -478,13 +478,12 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("target yaw rate : %f \t\t", f_yawrate_input_deg);
 
         
-        ///////////////////////////////////////////
-        // update sensor data
-        // move present value to previous value
-        // and update new data to present value
-        //////////////////////////////////////////
-        mpu.read(&gx, &gy, &gz, &ax, &ay, &az);
-        f_yawrate_meas_degs = gz;
+    
+        mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
+
+        f_yawrate_meas_degs = IMU_gz;               // need to check this!!!!
+        ////////////////////////////////////////////////////////////////// 
+
         f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
 
         pc.printf("measured yaw rate : %f \r\n", f_yaw_rate_meas_filtered_degs);
