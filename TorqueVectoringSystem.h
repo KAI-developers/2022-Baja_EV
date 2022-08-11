@@ -53,6 +53,12 @@
 #define LOWER_BOUND                     0.0
 #define UPPER_BOUND                     1.0
 
+#define FR_OPAMP_GAIN                   1.7
+#define FL_OPAMP_GAIN                   1.7
+#define RR_OPAMP_GAIN                   1.7
+#define RL_OPAMP_GAIN                   1.7
+#define IDEAL_OPAMP_GAIN                1.515
+
 #define PRESENT                         1
 #define PREVIOUS                        0
 
