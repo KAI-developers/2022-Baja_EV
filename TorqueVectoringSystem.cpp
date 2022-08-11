@@ -589,10 +589,10 @@ void TorqueVectoringSystem::process_accel(
 
 
     
-        FL_OUTPUT_Throttle = f_PWM_input_FL;            // OUTPUT from mbed, input from controller
-        FL_OUTPUT_Throttle = f_PWM_input_FR;
-        FL_OUTPUT_Throttle = f_PWM_input_RL;
-        FL_OUTPUT_Throttle = f_PWM_input_RR;
+        FL_OUTPUT_Throttle = f_PWM_input_FL*IDEAL_OPAMP_GAIN/FL_OPAMP_GAIN;            // OUTPUT from mbed, input from controller
+        FR_OUTPUT_Throttle = f_PWM_input_FR*IDEAL_OPAMP_GAIN/FR_OPAMP_GAIN; 
+        RL_OUTPUT_Throttle = f_PWM_input_RL*IDEAL_OPAMP_GAIN/RL_OPAMP_GAIN; 
+        RR_OUTPUT_Throttle = f_PWM_input_RR*IDEAL_OPAMP_GAIN/RR_OPAMP_GAIN; 
 
     }
 }
