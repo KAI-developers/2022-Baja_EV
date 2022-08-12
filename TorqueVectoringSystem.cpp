@@ -391,6 +391,11 @@ float TorqueVectoringSystem::SumFFandPID(float f_output_throttle, float f_PID_th
         return sumFF;
 }
 
+float TorqueVectoringSystem::ModifyPedalThrottle(float input, float in_min, float in_max, float out_min, float out_max)
+{
+    return (input - in_min)*(out_max - out_min) /  (in_max - in_min) +out_min;
+}
+
 
 void TorqueVectoringSystem::process_accel(
     PinName FL_HALL_PIN, PinName FR_HALL_PIN, PinName RL_HALL_PIN, PinName RR_HALL_PIN, 
@@ -493,6 +498,9 @@ void TorqueVectoringSystem::process_accel(
         f_pedal_sensor_value = Pedal_Sensor.read();
 
         pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
+
+        //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
+        f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
 
 
         WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_sensor_value,
