@@ -5,6 +5,8 @@
 #include <math.h>
 
 
+Serial pc(USBTX, USBRX, 115200);
+
 
 TorqueVectoringSystem::TorqueVectoringSystem()
 {
@@ -222,6 +224,12 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     float rl = (-1.) * R * sin(phi);
     float rr = R * sin(phi);
 
+    
+    // need to erase this
+    pc.printf("\tfirst feed forward func \r\n");
+    pc.printf("\tarm length : \r\nFL : %f, FR : %f, RL : %f, RR : %f", fl, fr, rl, rr);
+
+
     float weight[4] = { 0 };
 
     float sum = 0.;
@@ -231,6 +239,9 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     weight[RL] = rl * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
     weight[RR] = rr * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
 
+    pc.printf("\tweight (profile func output) \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
+
 
     sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
 
@@ -238,6 +249,9 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     f_wheel_torque_FR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[FR] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
     f_wheel_torque_RL_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RL] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
     f_wheel_torque_RR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RR] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
+
+    pc.printf("\tnormalized torque \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
 
     if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
     if (f_wheel_torque_FR_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
@@ -403,8 +417,6 @@ void TorqueVectoringSystem::process_accel(
     PinName FL_CURRENT_SENSOR_PIN, PinName FR_CURRENT_SENSOR_PIN, PinName RL_CURRENT_SENSOR_PIN, PinName RR_CURRENT_SENSOR_PIN, 
     PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN)
 {
-    
-    Serial pc(USBTX, USBRX, 115200);
 
     HallSensor FL_Hall_A(FL_HALL_PIN);
     HallSensor FR_Hall_A(FR_HALL_PIN);
