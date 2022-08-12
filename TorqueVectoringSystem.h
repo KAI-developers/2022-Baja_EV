@@ -111,7 +111,7 @@ public:
     float f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR;
     float f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR;
 
-    float gx, gy, gz, ax, ay, az;
+    float IMU_gx, IMU_gy, IMU_gz, IMU_ax, IMU_ay, IMU_az;
     float f_yawrate_meas_degs;
 
 
