@@ -83,6 +83,8 @@ public:
     //pedal box
     float f_pedal_sensor_value;
     float f_pedal_modified_sensor_value;
+
+    int i_PWR_percentage;
     //handle
     float f_steering_sensor_value;
 
@@ -149,7 +151,7 @@ public:
     
     float ModifyPedalThrottle(float input, float in_min, float in_max, float out_min, float out_max);
 
-    void process_accel(PinName FL_Hall_PIN, PinName FR_Hall_PIN, PinName RL_Hall_PIN, PinName RR_Hall_PIN, 
+    void process_accel(PinName TVS_SWITCH_PIN, PinName FL_Hall_PIN, PinName FR_Hall_PIN, PinName RL_Hall_PIN, PinName RR_Hall_PIN, 
         PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,
         PinName FL_OPAMP_OUT_PIN, PinName FR_OPAMP_OUT_PIN, PinName RL_OPAMP_OUT_PIN, PinName RR_OPAMP_OUT_PIN, 
         PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
