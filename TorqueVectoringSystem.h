@@ -82,6 +82,7 @@ public:
 
     //pedal box
     float f_pedal_sensor_value;
+    float f_pedal_modified_sensor_value;
     //handle
     float f_steering_sensor_value;
 
@@ -113,6 +114,7 @@ public:
     float f_torque_RR_Nm;
 
     float f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR;
+    
     float f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR;
     float f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR;
 
@@ -144,6 +146,8 @@ public:
     float PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm);
 
     float SumFFandPID(float f_output_throttle, float f_PID_throttle);
+    
+    float ModifyPedalThrottle(float input, float in_min, float in_max, float out_min, float out_max);
 
     void process_accel(PinName FL_Hall_PIN, PinName FR_Hall_PIN, PinName RL_Hall_PIN, PinName RR_Hall_PIN, 
         PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,

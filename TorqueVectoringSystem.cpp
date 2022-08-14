@@ -227,7 +227,7 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     
     // need to erase this
     pc.printf("\tfirst feed forward func \r\n");
-    pc.printf("\tarm length : \r\nFL : %f, FR : %f, RL : %f, RR : %f", fl, fr, rl, rr);
+    pc.printf("\tarm length : \r\nFL : %f, FR : %f, RL : %f, RR : %f\r\n", fl, fr, rl, rr);
 
 
     float weight[4] = { 0 };
@@ -435,10 +435,10 @@ void TorqueVectoringSystem::process_accel(
     
     AnalogIn Pedal_Sensor(PEDAL_SENSOR_PIN);
     
-    PwmOut FL_OUTPUT_Throttle(FL_OUTPUT_THROTTLE_PIN);
-    PwmOut FR_OUTPUT_Throttle(FR_OUTPUT_THROTTLE_PIN);
-    PwmOut RL_OUTPUT_Throttle(RL_OUTPUT_THROTTLE_PIN);
-    PwmOut RR_OUTPUT_Throttle(RR_OUTPUT_THROTTLE_PIN);
+    PwmOut FL_Throttle_PWM(FL_OUTPUT_THROTTLE_PIN);
+    PwmOut FR_Throttle_PWM(FR_OUTPUT_THROTTLE_PIN);
+    PwmOut RL_Throttle_PWM(RL_OUTPUT_THROTTLE_PIN);
+    PwmOut RR_Throttle_PWM(RR_OUTPUT_THROTTLE_PIN);
     
     
     mpu.start();
@@ -447,10 +447,10 @@ void TorqueVectoringSystem::process_accel(
 
 
     
-    FL_OUTPUT_Throttle.period_us(PWM_PERIOD_US);
-    FR_OUTPUT_Throttle.period_us(PWM_PERIOD_US);
-    RL_OUTPUT_Throttle.period_us(PWM_PERIOD_US);
-    RR_OUTPUT_Throttle.period_us(PWM_PERIOD_US);
+    FL_Throttle_PWM.period_us(PWM_PERIOD_US);
+    FR_Throttle_PWM.period_us(PWM_PERIOD_US);
+    RL_Throttle_PWM.period_us(PWM_PERIOD_US);
+    RR_Throttle_PWM.period_us(PWM_PERIOD_US);
 
 
     while(1) {
@@ -546,8 +546,6 @@ void TorqueVectoringSystem::process_accel(
         f_motor_current_RL_A = ReadCurrentSensor(RL_Current_OUT.read());
         f_motor_current_RR_A = ReadCurrentSensor(RR_Current_OUT.read());
 
-
-        pc.printf("current value \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
         
 
@@ -602,16 +600,19 @@ void TorqueVectoringSystem::process_accel(
         f_PWM_input_RL = SumFFandPID(f_output_throttle_RL, f_PID_throttle_RL);
         f_PWM_input_RR = SumFFandPID(f_output_throttle_RR, f_PID_throttle_RR);
 
-        pc.printf("actual output throttle signal(voltage)\r\n");
+        pc.printf(" raw throttle signal(voltage)\r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
 
 
     
-        FL_OUTPUT_Throttle = f_PWM_input_FL*IDEAL_OPAMP_GAIN/FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
-        FR_OUTPUT_Throttle = f_PWM_input_FR*IDEAL_OPAMP_GAIN/FR_OPAMP_GAIN; 
-        RL_OUTPUT_Throttle = f_PWM_input_RL*IDEAL_OPAMP_GAIN/RL_OPAMP_GAIN; 
-        RR_OUTPUT_Throttle = f_PWM_input_RR*IDEAL_OPAMP_GAIN/RR_OPAMP_GAIN; 
+        FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
+        FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
+        RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
+        RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
+
+        pc.printf("actual throttle signal(voltage)\r\n");
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_Throttle_PWM.read(), FR_Throttle_PWM.read(), RL_Throttle_PWM.read(), RR_Throttle_PWM.read());
 
     }
 }
