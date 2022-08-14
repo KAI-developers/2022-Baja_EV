@@ -362,7 +362,7 @@ float TorqueVectoringSystem::CvtCurrent2Torque(float f_motor_current_A)
 */
 float TorqueVectoringSystem::Torque2Throttle(float f_torque_Nm)
 {
-    float f_output_throttle = f_torque_Nm * (3.3 / MAX_TORQUE);
+    float f_output_throttle = f_torque_Nm * (3.3 / ACTUAL_MAX_TORQUE_NY);
     return f_output_throttle;
 }
 
@@ -517,14 +517,9 @@ void TorqueVectoringSystem::process_accel(
             f_pedal_sensor_value = Pedal_Sensor.read();
 
             pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
-            
-            // for MMS PWR
-            i_PWR_percentage = (int)ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 100.0);
-            pc.printf("PWR percentage : %d", i_PWR_percentage);
-
 
             //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
-            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MIN, THROTTLE_MAX);
+            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
 
 
             WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_sensor_value,
@@ -645,4 +640,5 @@ void TorqueVectoringSystem::process_accel(
             RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
             RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
         }
+    }
 }
