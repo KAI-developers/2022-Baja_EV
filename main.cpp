@@ -10,8 +10,9 @@ Serial pc1(USBTX, USBRX, 115200);
 int main()
 {
     pc1.printf("mbed reset!\r\n");
-    
 
+    PinName TVS_SWITCH_PIN = p30;
+    
     PinName FL_HALL_PIN = p11;
     PinName FR_HALL_PIN = p12;
     PinName RL_HALL_PIN = p13;
@@ -38,7 +39,7 @@ int main()
     TorqueVectoringSystem TVS;
 
     TVS.process_accel(
-        FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
+        TVS_SWITCH_PIN, FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
         HANDLE_SENSOR_PIN, MPU_SDA, MPU_SCL, PEDAL_SENSOR_PIN,
         FL_CURRENT_SENSOR_PIN, FR_CURRENT_SENSOR_PIN, RL_CURRENT_SENSOR_PIN, RR_CURRENT_SENSOR_PIN,
         FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN);
