@@ -63,8 +63,11 @@
 #define RL_OPAMP_GAIN                   1.7
 #define IDEAL_OPAMP_GAIN                1.515
 
-#define PEDAL_MIN_VALUE                 0.4
-#define PEDAL_MAX_VALUE                 1.4
+
+#define PEDAL_MIN_VALUE                 0.121 
+#define PEDAL_MAX_VALUE                 0.424
+
+
 #define THROTTLE_MIN                    0
 #define THROTTLE_MAX                    3.3            
 

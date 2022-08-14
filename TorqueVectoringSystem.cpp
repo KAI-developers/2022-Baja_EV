@@ -309,7 +309,7 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, floa
 - 옴의 법칙 이용 전류로 환산
 - configuration
     amp rate(200)
-    shunt resistance(50u)
+    shunt resistance(50u)float
 */
 float TorqueVectoringSystem::OpAmp2Current(float f_opamp_ADC)
 {
@@ -515,14 +515,20 @@ void TorqueVectoringSystem::process_accel(
 
             //f_pedal_sensor_value 받기!
             f_pedal_sensor_value = Pedal_Sensor.read();
+            pc.printf("pedal raw value (0.0~1.0 value) : %f\r\n", f_pedal_sensor_value);
 
-            pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
+            //Modify pedal sensor vlaue range(true sensor value min~max) ----> (0.0 ~ 1.0)
+            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 1.0);
+            pc.printf("modified pedal value(0.0~1.0 value) : %f\r\n", f_pedal_modified_sensor_value);
+            
 
-            //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
-            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
+            // for MMS PWR
+            i_PWR_percentage = (int)(f_pedal_modified_sensor_value * 100);
+            pc.printf("PWR percentage : %d\r\n", i_PWR_percentage);
+            
 
 
-            WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_sensor_value,
+            WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_modified_sensor_value,
                 f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
                 f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
 
