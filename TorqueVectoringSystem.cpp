@@ -24,6 +24,9 @@ TorqueVectoringSystem::TorqueVectoringSystem()
     //pedal box
     f_pedal_sensor_value = 0.0;
     //handle
+    f_pedal_modified_sensor_value = 0.0;
+    i_PWR_percentage = 0;
+
     f_steering_sensor_value = 0.0;
 
 
@@ -514,9 +517,14 @@ void TorqueVectoringSystem::process_accel(
             f_pedal_sensor_value = Pedal_Sensor.read();
 
             pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
+            
+            // for MMS PWR
+            i_PWR_percentage = (int)ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 100.0);
+            pc.printf("PWR percentage : %d", i_PWR_percentage);
+
 
             //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
-            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
+            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MIN, THROTTLE_MAX);
 
 
             WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_sensor_value,
