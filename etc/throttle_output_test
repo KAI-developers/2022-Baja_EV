@@ -24,7 +24,7 @@ int main() {
     float pedal_read_value;
     float modified_pedal_value;
 
-    throttle.period_us(PERIOD_US);
+    throttle_out.period_us(PERIOD_US);
 
     while(1) {
         pedal_read_value = pedal.read();
@@ -35,7 +35,7 @@ int main() {
         
 
         throttle_out = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN;
-        
+
         pc.printf("throttle output voltage : %f", throttle_out.read() * 3.3);
 
     }
