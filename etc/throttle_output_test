@@ -27,16 +27,17 @@ int main() {
     throttle_out.period_us(PERIOD_US);
 
     while(1) {
+
         pedal_read_value = pedal.read();
         pc.printf("pedal raw value (0.0 ~ 1.0) : %f \r\n", pedal_read_value);
 
         modified_pedal_value = map(pedal_read_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 1.0);
-        pc.printf("modified pedal value (0.0 ~ 1.0) : %f", modified_pedal_value);
+        pc.printf("modified pedal value (0.0 ~ 1.0) : %f\r\n", modified_pedal_value);
         
 
         throttle_out = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN;
 
-        pc.printf("throttle output voltage : %f", throttle_out.read() * 3.3);
+        pc.printf("throttle output voltage : %f\r\n\n\n", throttle_out.read() * 3.3);
 
     }
     
