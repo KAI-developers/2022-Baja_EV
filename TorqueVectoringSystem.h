@@ -57,10 +57,10 @@
 #define LOWER_BOUND                     0.0
 #define UPPER_BOUND                     1.0
 
-#define FR_OPAMP_GAIN                   1.7
-#define FL_OPAMP_GAIN                   1.7
-#define RR_OPAMP_GAIN                   1.7
-#define RL_OPAMP_GAIN                   1.7
+#define FR_OPAMP_GAIN                   1.515
+#define FL_OPAMP_GAIN                   1.515
+#define RR_OPAMP_GAIN                   1.515
+#define RL_OPAMP_GAIN                   1.515
 #define IDEAL_OPAMP_GAIN                1.515
 
 
@@ -76,11 +76,15 @@
 
 #define PWM_PERIOD_US                   25
 
+#define CONTROLLER_IN_MIN               0.1
+#define CONTROLLER_IN_MAX               0.8
+
 #define TVS_ON                          1
 #define TVS_OFF                         0
-
 #define MOTOR_ON                        1
 #define MOTOR_OFF                       0
+
+
 
 
 class TorqueVectoringSystem {

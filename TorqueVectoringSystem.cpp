@@ -80,7 +80,6 @@ TorqueVectoringSystem::TorqueVectoringSystem()
     IMU_gx = 0.0, IMU_gy = 0.0, IMU_gz = 0.0, IMU_ax = 0.0, IMU_ay = 0.0, IMU_az = 0.0;
     f_yawrate_meas_degs = 0.0;
 
-    
 }
 
 
@@ -220,12 +219,15 @@ float TorqueVectoringSystem::IMUFilter(float i_IMU_yaw_rate_radps)
 - configuration
     WHEEL_BASE = 1.390m
     TRACK = 1.300m
+-가장 큰 주의사항
+    이 함수는 페달신호 최대 5V를 입력받는다고 가정하며, 이 것을 5V 스로틀신호 입력을 받는
+    컨트롤러에 4개의 적절한 값 분배(스로틀신호)를 이룬 후에, 이에 대한 목표 토크를 출력한다.
 */
 void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
     float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm, float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm)
 
 {
-    float pedal_throttle_voltage = f_pedal_sensor_value * 5.0;          //  need to set by configuration
+    float pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
     float R = sqrt(pow(WHEEL_BASE / 2.0, 2.0) + pow(TRACK / 2.0, 2.0));
 
     float phi = atan((TRACK / 2.) / (WHEEL_BASE / 2.));
@@ -256,14 +258,16 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 
     sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
 
-    f_wheel_torque_FL_Nm = 4 * (pedal_throttle_voltage / sum) * weight[FL] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_FR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[FR] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RL_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RL] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RR] * (MAX_TORQUE / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_FL_Nm = 4 * (pedal_throttle_voltage / sum) * weight[FL] * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_FR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[FR] * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_RL_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RL] * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_RR_Nm = 4 * (pedal_throttle_voltage / sum) * weight[RR] * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
 
     pc.printf("\tnormalized torque \r\n");
     pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
 
+
+    // 안전장치
     if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
     if (f_wheel_torque_FR_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
     if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
@@ -367,10 +371,11 @@ float TorqueVectoringSystem::CvtCurrent2Torque(float f_motor_current_A)
     f_output_throttle_(4방향): 각각 4개, float, voltage(V)
 - configuration
     MAX_TORQUE = 17Nm
+    ACTUAL_MAX_TORQUE 는 추후 측정 예정.
 */
 float TorqueVectoringSystem::Torque2Throttle(float f_torque_Nm)
 {
-    float f_output_throttle = f_torque_Nm * (3.3 / ACTUAL_MAX_TORQUE_NY);
+    float f_output_throttle = f_torque_Nm * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
     return f_output_throttle;
 }
 
@@ -389,7 +394,7 @@ float TorqueVectoringSystem::Torque2Throttle(float f_torque_Nm)
 float TorqueVectoringSystem::PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm)
 {
     float error = f_torque_Nm - f_measured_torque_Nm;
-    float f_PID_throttle = KP_FOR_THROTTLE * error * (3.3 / MAX_TORQUE);
+    float f_PID_throttle = KP_FOR_THROTTLE * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
     return f_PID_throttle;
 }
 
@@ -406,16 +411,20 @@ float TorqueVectoringSystem::PIDforThrottle(float f_torque_Nm, float f_measured_
 */
 float TorqueVectoringSystem::SumFFandPID(float f_output_throttle, float f_PID_throttle)
 {
-    float sumFF = (f_output_throttle + f_PID_throttle) / 3.3;
+    float PWM_throttle_mbed_value = (f_output_throttle + f_PID_throttle) / ANALOG_RANGE;
 
-    if (sumFF >= UPPER_BOUND)
+    if (PWM_throttle_mbed_value >= UPPER_BOUND)
         return UPPER_BOUND;
-    else if (sumFF <= LOWER_BOUND)
+    else if (PWM_throttle_mbed_value <= LOWER_BOUND)
         return LOWER_BOUND;
     else
-        return sumFF;
+        return PWM_throttle_mbed_value;
 }
 
+/*
+페달의 최대각, 최소각에 따른 실제 입력값(mbed의 경우 0.0~1.0)
+의 값을 실제로 측정 후, 이를 0.0~1.0의 값으로 mapping하는 함수
+*/
 float TorqueVectoringSystem::ModifyPedalThrottle(float input, float in_min, float in_max, float out_min, float out_max)
 {
     return (input - in_min)*(out_max - out_min) /  (in_max - in_min) + out_min;
@@ -430,7 +439,11 @@ void TorqueVectoringSystem::process_accel(
 {
 
     // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
-    int8_t TVS_SWITCH;
+
+    float trimmed_throttle_FL;
+    float trimmed_throttle_FR;
+    float trimmed_throttle_RL;
+    float trimmed_throttle_RR;
 
     HallSensor FL_Hall_A(FL_HALL_PIN);
     HallSensor FR_Hall_A(FR_HALL_PIN);
@@ -468,8 +481,6 @@ void TorqueVectoringSystem::process_accel(
 
 
     while(1) {
-
-        TVS_SWITCH = TVS_ON;
 
         pc.printf("entered WHILE : \r\n");
 
@@ -545,6 +556,8 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("feedforward torque : \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
         
+
+
         PIDYawRate2Torque(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
             f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm,
             f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
@@ -623,19 +636,33 @@ void TorqueVectoringSystem::process_accel(
         f_PWM_input_RL = SumFFandPID(f_output_throttle_RL, f_PID_throttle_RL);
         f_PWM_input_RR = SumFFandPID(f_output_throttle_RR, f_PID_throttle_RR);
 
-        pc.printf(" raw throttle signal(voltage)\r\n");
+        pc.printf(" raw throttle signal(PWM)\r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
 
 
+        // 0.0 ~ 1.0의 값으로 설정된 PWM신호를, 컨트롤러 특성에 맞게 map함수 구현
+        trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_FR = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_RL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_RR = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+
+        pc.printf("modified PWM value : \r\n");
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+                    trimmed_throttle_FL, trimmed_throttle_FR, trimmed_throttle_RL, trimmed_throttle_RR);
+
+
     
-        FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
+        FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // noninverting amp outworld(ideal gain 1.515)
         FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
         RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
         RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
 
+
+
         pc.printf("actual throttle signal(voltage)\r\n");
-        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_Throttle_PWM.read(), FR_Throttle_PWM.read(), RL_Throttle_PWM.read(), RR_Throttle_PWM.read());
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+                    FL_Throttle_PWM.read() * 3.3, FR_Throttle_PWM.read() * 3.3, RL_Throttle_PWM.read() * 3.3, RR_Throttle_PWM.read() * 3.3);
 
             
 
