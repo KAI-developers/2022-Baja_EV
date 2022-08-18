@@ -23,7 +23,7 @@
 #define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
 
 
-#define WHEEL_BASE                      1.390
+#define WHEEL_BASE                      1.371
 #define TRACK                           1.300
 #define ALPHA                           0.85
 
@@ -64,8 +64,8 @@
 #define IDEAL_OPAMP_GAIN                1.515
 
 
-#define PEDAL_MIN_VALUE                 0.121 
-#define PEDAL_MAX_VALUE                 0.424
+#define PEDAL_MIN_VALUE                 0.213       // mbed analogread value
+#define PEDAL_MAX_VALUE                 0.68        // mbed analogread value
 
 
 #define THROTTLE_MIN                    0
