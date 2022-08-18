@@ -162,6 +162,7 @@ public:
     
     float ModifyPedalThrottle(float input, float in_min, float in_max, float out_min, float out_max);
 
+    float map_f(float input, float in_min, float in_max, float out_in, float out_max);
 
     void process_accel(PinName TVS_SWITCH_PIN, PinName FL_Hall_PIN, PinName FR_Hall_PIN, PinName RL_Hall_PIN, PinName RR_Hall_PIN, 
         PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,

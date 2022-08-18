@@ -103,7 +103,14 @@ float TorqueVectoringSystem::CalRPM(HallSensor hall)
 }
 */
 
-
+/*
+- 단순한 map 함수 구현(아두이노 함수 참조)
+- float형 return
+*/
+float TorqueVectoringSystem::map_f(float input, float in_min, float in_max, float out_in, float out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 /*
 - motor RPM --> m/s 변환하는 함수.
@@ -460,7 +467,7 @@ void TorqueVectoringSystem::process_accel(
 
 
     while(1) {
-        
+
         TVS_SWITCH = TVS_ON;
 
         pc.printf("entered WHILE : \r\n");
