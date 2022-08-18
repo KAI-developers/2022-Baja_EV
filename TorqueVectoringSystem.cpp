@@ -79,6 +79,7 @@ TorqueVectoringSystem::TorqueVectoringSystem()
 
     IMU_gx = 0.0, IMU_gy = 0.0, IMU_gz = 0.0, IMU_ax = 0.0, IMU_ay = 0.0, IMU_az = 0.0;
     f_yawrate_meas_degs = 0.0;
+
     
 }
 
@@ -488,7 +489,7 @@ void TorqueVectoringSystem::process_accel(
 
 
         
-            // f_steering_sensor_value 받기!
+            //f_steering_sensor_value 받기!
             pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
 
             f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
