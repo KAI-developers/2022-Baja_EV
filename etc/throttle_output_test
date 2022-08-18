@@ -1,7 +1,7 @@
 #include "mbed.h"
 
-#define PEDAL_MIN_VALUE     0.1
-#define PEDAL_MAX_VALUE     0.9
+#define PEDAL_MIN_VALUE     0.213
+#define PEDAL_MAX_VALUE     0.68
 
 #define IDEAL_OPAMP_GAIN    1.515
 #define REAL_OPAMP_GAIN     1.7
