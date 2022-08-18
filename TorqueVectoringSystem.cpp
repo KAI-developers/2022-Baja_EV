@@ -391,10 +391,16 @@ float TorqueVectoringSystem::Torque2Throttle(float f_torque_Nm)
 - configuration
     KP_FOR_THROTTLE
 */
-float TorqueVectoringSystem::PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm)
+float TorqueVectoringSystem::PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm, int direction)
 {
     float error = f_torque_Nm - f_measured_torque_Nm;
-    float f_PID_throttle = KP_FOR_THROTTLE * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
+    float f_PID_throttle;
+
+    if (direction == FL)        f_PID_throttle = KP_FOR_THROTTLE_FL * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
+    else if (direction == FR)   f_PID_throttle = KP_FOR_THROTTLE_FR * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
+    else if (direction == RL)   f_PID_throttle = KP_FOR_THROTTLE_RL * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY);
+    else if (direction == RR)   f_PID_throttle = KP_FOR_THROTTLE_RR * error * (ANALOG_RANGE / ACTUAL_MAX_TORQUE_NY); 
+
     return f_PID_throttle;
 }
 
@@ -620,10 +626,10 @@ void TorqueVectoringSystem::process_accel(
     
     
 
-        f_PID_throttle_FL = PIDforThrottle(f_torque_FL_Nm, f_measured_torque_FL_Nm);
-        f_PID_throttle_FR = PIDforThrottle(f_torque_FR_Nm, f_measured_torque_FR_Nm);
-        f_PID_throttle_RL = PIDforThrottle(f_torque_RL_Nm, f_measured_torque_RL_Nm);
-        f_PID_throttle_RR = PIDforThrottle(f_torque_RR_Nm, f_measured_torque_RR_Nm);
+        f_PID_throttle_FL = PIDforThrottle(f_torque_FL_Nm, f_measured_torque_FL_Nm, FL);
+        f_PID_throttle_FR = PIDforThrottle(f_torque_FR_Nm, f_measured_torque_FR_Nm, FR);
+        f_PID_throttle_RL = PIDforThrottle(f_torque_RL_Nm, f_measured_torque_RL_Nm, RL);
+        f_PID_throttle_RR = PIDforThrottle(f_torque_RR_Nm, f_measured_torque_RR_Nm, RR);
 
         pc.printf("feedback output throttle signal(voltage)\r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);

@@ -53,7 +53,12 @@
 #define SHUNT_R                         0.00005
 #define ANALOG_RANGE                    3.3
 
-#define KP_FOR_THROTTLE                 0.1
+#define KP_FOR_THROTTLE_FL              0.5
+#define KP_FOR_THROTTLE_FR              0.5
+#define KP_FOR_THROTTLE_RL              0.5
+#define KP_FOR_THROTTLE_RR              0.5
+
+
 #define LOWER_BOUND                     0.0
 #define UPPER_BOUND                     1.0
 
@@ -163,7 +168,7 @@ public:
 
     float Torque2Throttle(float f_torque_Nm);
 
-    float PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm);
+    float PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm, int direction);
 
     float SumFFandPID(float f_output_throttle, float f_PID_throttle);
     
