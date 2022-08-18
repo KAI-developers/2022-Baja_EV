@@ -306,11 +306,11 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, floa
 
     else
     {
-        f_PID_yaw_rate2torque_RL_Nm = KP_FOR_TORQUE_RL * f_yaw_rate_error_radps;
-        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * f_yaw_rate_error_radps;
-
         f_PID_yaw_rate2torque_FL_Nm = 0;
         f_PID_yaw_rate2torque_RL_Nm = 0;
+
+        f_PID_yaw_rate2torque_FR_Nm = KP_FOR_TORQUE_FR * f_yaw_rate_error_radps;
+        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * f_yaw_rate_error_radps;
     }
 
 }
