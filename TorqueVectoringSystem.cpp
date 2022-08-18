@@ -107,9 +107,9 @@ float TorqueVectoringSystem::CalRPM(HallSensor hall)
 - 단순한 map 함수 구현(아두이노 함수 참조)
 - float형 return
 */
-float TorqueVectoringSystem::map_f(float input, float in_min, float in_max, float out_in, float out_max)
+float TorqueVectoringSystem::map_f(float input, float in_min, float in_max, float out_min, float out_max)
 {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    return (input - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 /*
@@ -429,7 +429,8 @@ void TorqueVectoringSystem::process_accel(
     PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN)
 {
 
-    DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
+    // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
+    int8_t TVS_SWITCH;
 
     HallSensor FL_Hall_A(FL_HALL_PIN);
     HallSensor FR_Hall_A(FR_HALL_PIN);
