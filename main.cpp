@@ -35,8 +35,11 @@ void ros_thread(){
         kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
 
         // kai_msg.i_throttle = 
-        kai_msg.c_torque_mode_flag = TVS.TVS_SWITCH;
-        // kai_msg.c_motor_mode_flag = 
+        kai_msg.c_torque_mode_flag = TVS_ON;
+        kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
 
         carstate.publish( & kai_msg );
         nh.spinOnce();

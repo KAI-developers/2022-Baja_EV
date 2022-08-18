@@ -260,7 +260,7 @@ namespace kai_msgs
           return offset;
       }
       
-      const char * getType() { return "custom_pkg/CarState"; };
+      const char * getType() { return "driver_system/CarState"; };
       const char * getMD5() { return "9d781d5f9902017535bcd729642f2fe7"; };
        
   };

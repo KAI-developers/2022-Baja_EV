@@ -11,7 +11,7 @@
 
 #define WHEEL_RADIUS                    0.295
 #define GEAR_RATIO                      5.27
-#define PI                              3.141592
+//#define PI                              3.141592
 
 
 #define DEFAULT_VOLTAGE_INPUT           0.5
@@ -79,6 +79,9 @@
 #define TVS_ON                          1
 #define TVS_OFF                         0
 
+#define MOTOR_ON                        1
+#define MOTOR_OFF                       0
+
 
 class TorqueVectoringSystem {
 public:
@@ -133,8 +136,6 @@ public:
 
     float IMU_gx, IMU_gy, IMU_gz, IMU_ax, IMU_ay, IMU_az;
     float f_yawrate_meas_degs;
-
-    int8_t TVS_SWITCH;
 
 
     float CvtRPM2Vel(float f_motor_RPM);
