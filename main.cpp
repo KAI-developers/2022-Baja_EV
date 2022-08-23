@@ -15,23 +15,14 @@
 
 /*
 ros::NodeHandle nh;
-
-
 //kai_msgs::CarState kai_msg;
 //ros::Publisher carstate("carstate", &kai_msg);
-
 //float f_temp=0.0;
 //int cnt=0;
-
-
-
 //Thread thread;
 //Thread thread1, thread2;
 //TorqueVectoringSystem TVS;
-
 Thread thread1, thread2;
-
-
 /*
 void ros_thread(){
     while(true){
@@ -45,19 +36,16 @@ void ros_thread(){
         kai_msg.f_motor_torque_FR_Nm=TVS.f_measured_torque_FR_Nm;
         kai_msg.f_motor_torque_RL_Nm=TVS.f_measured_torque_RL_Nm;
         kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
-
         kai_msg.i_throttle = TVS.i_PWR_percentage;
         kai_msg.c_torque_mode_flag = TVS_ON;
         kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
-
         carstate.publish( & kai_msg );
         nh.spinOnce();
         wait_ms(125);
     }
-
 }
 */
 
