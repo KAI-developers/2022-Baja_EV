@@ -1,33 +1,29 @@
 #include "mbed.h"
-#include "rtos.h"
-
 #include "TorqueVectoringSystem.h"
-#include "HallSensor.h"
-#include "MPU6050.h"
+
+//#include "HallSensor.h"
+//#include "MPU6050.h"
+
+
 
 
 //========================== Mbed to PC ROS Communication Thread =======================//
-#include "CarState.h"
-#include <ros.h>
+//#include "CarState.h"
+//#include <ros.h>
+
+
 
 /*
 ros::NodeHandle nh;
-
-kai_msgs::CarState kai_msg;
-ros::Publisher carstate("carstate", &kai_msg);
-
-/*
-float f_temp=0.0;
-int cnt=0;
-*/
-
-//Serial pc1(USBTX, USBRX, 115200);
-
+//kai_msgs::CarState kai_msg;
+//ros::Publisher carstate("carstate", &kai_msg);
+//float f_temp=0.0;
+//int cnt=0;
 //Thread thread;
-Thread thread1; //,thread2;
-TorqueVectoringSystem TVS;
-Serial& pc_ = TVS.pc;
-
+//Thread thread1, thread2;
+//TorqueVectoringSystem TVS;
+Thread thread1, thread2;
+/*
 void ros_thread(){
     while(true){
         
@@ -40,23 +36,25 @@ void ros_thread(){
         kai_msg.f_motor_torque_FR_Nm=TVS.f_measured_torque_FR_Nm;
         kai_msg.f_motor_torque_RL_Nm=TVS.f_measured_torque_RL_Nm;
         kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
-
         kai_msg.i_throttle = TVS.i_PWR_percentage;
         kai_msg.c_torque_mode_flag = TVS_ON;
         kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
         kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
-
         carstate.publish( & kai_msg );
         nh.spinOnce();
         wait_ms(125);
     }
 }
+*/
+
 //========================== Mbed to PC ROS Communication Thread =======================//
 
+TorqueVectoringSystem TVS;
 //========================== Torque Vectoring System Thread =======================//
 void system_thread() {
+    TorqueVectoringSystem TVS;
 
     PinName TVS_SWITCH_PIN = p30;
 
@@ -105,7 +103,7 @@ int main(){
     //thread
     thread1.start(ros_thread);
     */
-    pc_.printf("main start");
+   
     system_thread();
 
     
