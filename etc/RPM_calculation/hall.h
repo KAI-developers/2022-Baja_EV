@@ -3,7 +3,7 @@
  
 #include "mbed.h"
  
-#define PI 3.141592
+//#define PI 3.141592
  
  
 class HallSensor

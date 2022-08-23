@@ -12,13 +12,10 @@
 //#include <ros.h>
 
 
-//ros::NodeHandle nh;
-
-
 
 /*
 ros::NodeHandle nh;
->>>>>>> f9b0bcafa213352f55b703cf1c9edbdffe3e5276
+
 
 //kai_msgs::CarState kai_msg;
 //ros::Publisher carstate("carstate", &kai_msg);
@@ -27,13 +24,13 @@ ros::NodeHandle nh;
 //int cnt=0;
 
 
-<<<<<<< HEAD
+
 //Thread thread;
 //Thread thread1, thread2;
 //TorqueVectoringSystem TVS;
-=======
+
 Thread thread1, thread2;
->>>>>>> f9b0bcafa213352f55b703cf1c9edbdffe3e5276
+
 
 /*
 void ros_thread(){

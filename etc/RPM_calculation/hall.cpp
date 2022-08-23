@@ -46,3 +46,4 @@ int HallSensor::getPinState ()
 {
     return m_hallSensor;
 }
+

@@ -591,6 +591,8 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("P controlled yaw rate output \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
 
+
+
         /*
     
         f_motor_current_FL_A = OpAmp2Current(FL_Opamp_OUT.read());
@@ -600,6 +602,11 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("current value \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
         */
+
+
+
+        /* 나중에 썼으면 좋겠는 것들....
+
 
         //f_motor_current 받기!
         f_motor_current_FL_A = ReadCurrentSensor(FL_Current_OUT.read());
@@ -620,8 +627,8 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("measured torque \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_measured_torque_FL_Nm, f_measured_torque_FR_Nm, f_measured_torque_RL_Nm, f_measured_torque_RR_Nm);
         
-        
-    
+
+        */
 
         f_torque_FL_Nm = f_wheel_torque_FL_Nm + f_PID_yaw_rate2torque_FL_Nm;
         f_torque_FR_Nm = f_wheel_torque_FR_Nm + f_PID_yaw_rate2torque_FR_Nm;
@@ -630,7 +637,6 @@ void TorqueVectoringSystem::process_accel(
 
         pc.printf("actual generating torque\r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_torque_FL_Nm, f_torque_FR_Nm, f_torque_RL_Nm, f_torque_RR_Nm);
-    
     
 
     
