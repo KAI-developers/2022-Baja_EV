@@ -54,6 +54,7 @@
 #define ANALOG_RANGE                    3.3
 
 #define TORQUE_VECTORING_RATE           -3.0
+#define FLOAT_MIN                       -1000.0
 
 #define KP_FOR_THROTTLE_FL              0.5
 #define KP_FOR_THROTTLE_FR              0.5

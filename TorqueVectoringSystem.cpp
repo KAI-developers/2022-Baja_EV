@@ -222,6 +222,10 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm, float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm)
 
 {
+    int dir;
+    // normalize값 중 최대를 계산
+    float max_weight;
+
     float f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
     float pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
     float R = sqrt(pow(WHEEL_BASE / 2.0, 2.0) + pow(TRACK / 2.0, 2.0));
@@ -242,10 +246,11 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     
     // need to erase this
     pc.printf("\tfirst feed forward func \r\n");
-    pc.printf("\tarm length : \r\nFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
+    pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
 
 
-    float weight[4] = { 0 };
+    float weight[4] = {0.0, 0.0, 0.0, 0.0};
+    float normalized_weight[4] = {0.0, 0.0, 0.0, 0.0};
 
     float sum = 0.;
 
@@ -260,27 +265,33 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 
 
     sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
+    pc.printf("\tsum : %f\r\n", sum);
 
-    // 스로틀신호 기준으로 normalize
-    float normalized_weight_FL = 4 * (pedal_throttle_voltage / sum) * weight[FL];
-    float normalized_weight_FR = 4 * (pedal_throttle_voltage / sum) * weight[FR];
-    float normalized_weight_RL = 4 * (pedal_throttle_voltage / sum) * weight[RL];
-    float normalized_weight_RR = 4 * (pedal_throttle_voltage / sum) * weight[RR];
+    //normalize
+    for(dir = 0; dir < 4; dir++)
+        normalized_weight[dir] = 4 * (pedal_throttle_voltage / sum) * weight[dir];
 
-    // normalize값 중 최대를 계산
-    float max_weight = normalized_weight_FL;
-    if(max_weight < normalized_weight_FR)     max_weight = normalized_weight_FR;
-    if(max_weight < normalized_weight_RL)     max_weight = normalized_weight_RL;
-    if(max_weight < normalized_weight_RR)     max_weight = normalized_weight_RR;
-    
-    pc.printf("max weight : %f", max_weight);
+    pc.printf("\tnormalized weight\r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+            normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
+
+    // find maximum normalized value
+    max_weight = normalized_weight[FL];
+    for(dir = 0; dir < 4; dir++)
+    {
+        if(max_weight < normalized_weight[dir]){
+            max_weight = normalized_weight[dir];
+        }
+    }
+
+    pc.printf("\tmax weight : %f\r\n", max_weight);
 
 
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
-    f_wheel_torque_FL_Nm = map_f(normalized_weight_FL, TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_FR_Nm = map_f(normalized_weight_FL, TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RL_Nm = map_f(normalized_weight_FL, TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RR_Nm = map_f(normalized_weight_FL, TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_FL_Nm = map_f(normalized_weight[FL], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_FR_Nm = map_f(normalized_weight[FR], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_RL_Nm = map_f(normalized_weight[RL], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    f_wheel_torque_RR_Nm = map_f(normalized_weight[RR], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
    
 
     pc.printf("\tnormalized torque \r\n");
@@ -289,9 +300,9 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 
     // 안전장치
     if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
-    if (f_wheel_torque_FR_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
-    if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
-    if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
+    if (f_wheel_torque_FR_Nm < 0.0)  f_wheel_torque_FR_Nm = 0.0;
+    if (f_wheel_torque_RL_Nm < 0.0)  f_wheel_torque_RL_Nm = 0.0;
+    if (f_wheel_torque_RR_Nm < 0.0)  f_wheel_torque_RR_Nm = 0.0;
 }
 
 
@@ -675,9 +686,9 @@ void TorqueVectoringSystem::process_accel(
 
         // 0.0 ~ 1.0의 값으로 설정된 PWM신호를, 컨트롤러 특성에 맞게 map함수 구현
         trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_FR = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_RL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_RR = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_FR = map_f(f_PWM_input_FR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_RL = map_f(f_PWM_input_RL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_RR = map_f(f_PWM_input_RR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
 
         pc.printf("modified PWM value : \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
@@ -711,5 +722,6 @@ void TorqueVectoringSystem::process_accel(
             RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
         }
         */
+        pc.printf("\r\n\n\n\n\n");
     }
 }
