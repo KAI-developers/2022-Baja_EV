@@ -614,7 +614,6 @@ void TorqueVectoringSystem::process_accel(
 
 
         /*
-    
         f_motor_current_FL_A = OpAmp2Current(FL_Opamp_OUT.read());
         f_motor_current_FR_A = OpAmp2Current(FR_Opamp_OUT.read());
         f_motor_current_RL_A = OpAmp2Current(RL_Opamp_OUT.read());
@@ -681,7 +680,7 @@ void TorqueVectoringSystem::process_accel(
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);
 
     
-
+;
     
         f_PWM_input_FL = SumFFandPID(f_output_throttle_FL, f_PID_throttle_FL);
         f_PWM_input_FR = SumFFandPID(f_output_throttle_FR, f_PID_throttle_FR);
