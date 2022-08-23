@@ -583,6 +583,9 @@ void TorqueVectoringSystem::process_accel(
 
         //Modify pedal sensor vlaue range(true sensor value min~max) ----> (0.0 ~ 1.0)
         f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 1.0);
+        if (f_pedal_modified_sensor_value < 0.0)    f_pedal_modified_sensor_value = 0.0;
+        if (f_pedal_modified_sensor_value > 1.0)    f_pedal_modified_sensor_value = 1.0;
+        
         pc.printf("modified pedal value(0.0~1.0 value) : %f\r\n", f_pedal_modified_sensor_value);
         
 
