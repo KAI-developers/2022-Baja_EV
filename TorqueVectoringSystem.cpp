@@ -5,8 +5,6 @@
 #include <math.h>
 
 
-Serial pc(USBTX, USBRX, 115200);
-
 
 TorqueVectoringSystem::TorqueVectoringSystem()
 {
@@ -83,17 +81,17 @@ TorqueVectoringSystem::TorqueVectoringSystem()
 }
 
 
+Serial pc(USBTX, USBRX, 115200);
+
 /*
 - RPM 구하는 함수
 - rising edge 시간 차를 이용해 계산
 - input
     ??
-
 - output
     f_motor_RPM
 - configuration
     MOTOR_POLE = 7
-
 float TorqueVectoringSystem::CalRPM(HallSensor hall)
 {
     //pc.printf("rpm: %f\n", hall.getRPM());        // for debuging
@@ -149,10 +147,7 @@ float TorqueVectoringSystem::CalAvgVel(float f_velocity1_ms, float f_velocity2_m
 
 /*
 - 가변 저항 센서 값을 조향 각으로 변환하는 함수.
-
 - configuration
-
-
 */
 float TorqueVectoringSystem::CalHandlingVolt2WheelSteeringAngle(float f_handling_sensor_value)
 {
@@ -597,7 +592,6 @@ void TorqueVectoringSystem::process_accel(
         f_motor_current_FR_A = OpAmp2Current(FR_Opamp_OUT.read());
         f_motor_current_RL_A = OpAmp2Current(RL_Opamp_OUT.read());
         f_motor_current_RR_A = OpAmp2Current(RR_Opamp_OUT.read());
-
         pc.printf("current value \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
         */
@@ -694,15 +688,10 @@ void TorqueVectoringSystem::process_accel(
 
         /* for TVS on, off mode
         if(TVS_SWITCH==TVS_OFF) {
-
             f_pedal_sensor_value = Pedal_Sensor.read();
-
             pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
-
             //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
             f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
-
-
         
             FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
             FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 

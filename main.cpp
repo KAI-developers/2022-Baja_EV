@@ -1,26 +1,27 @@
 #include "mbed.h"
 #include "TorqueVectoringSystem.h"
-#include "HallSensor.h"
-#include "MPU6050.h"
+//#include "HallSensor.h"
+//#include "MPU6050.h"
 
 //========================== Mbed to PC ROS Communication Thread =======================//
-#include "CarState.h"
-#include <ros.h>
+//#include "CarState.h"
+//#include <ros.h>
 
-ros::NodeHandle nh;
+//ros::NodeHandle nh;
 
-kai_msgs::CarState kai_msg;
-ros::Publisher carstate("carstate", &kai_msg);
+//kai_msgs::CarState kai_msg;
+//ros::Publisher carstate("carstate", &kai_msg);
 
-float f_temp=0.0;
-int cnt=0;
+//float f_temp=0.0;
+//int cnt=0;
 
 //Serial pc1(USBTX, USBRX, 115200);
 
 //Thread thread;
-Thread thread1, thread2;
-TorqueVectoringSystem TVS;
+//Thread thread1, thread2;
+//TorqueVectoringSystem TVS;
 
+/*
 void ros_thread(){
     while(true){
         
@@ -46,10 +47,12 @@ void ros_thread(){
         wait_ms(125);
     }
 }
+*/
 //========================== Mbed to PC ROS Communication Thread =======================//
 
 //========================== Torque Vectoring System Thread =======================//
 void system_thread() {
+    TorqueVectoringSystem TVS;
 
     PinName TVS_SWITCH_PIN = p30;
 
@@ -99,7 +102,7 @@ int main(){
     thread1.start(ros_thread);
     */
    
-    thread2.start(system_thread);
+    system_thread();
 
     
     return 0;
