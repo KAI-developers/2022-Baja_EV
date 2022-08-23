@@ -225,6 +225,8 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     int dir;
     // normalize값 중 최대를 계산
     float max_weight;
+    float f_wheel_torque_Nm[4];
+
 
     float f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
     float pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
@@ -288,21 +290,25 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 
 
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
-    f_wheel_torque_FL_Nm = map_f(normalized_weight[FL], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_FR_Nm = map_f(normalized_weight[FR], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RL_Nm = map_f(normalized_weight[RL], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-    f_wheel_torque_RR_Nm = map_f(normalized_weight[RR], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-   
+    for (dir = 0; dir < 4; dir++)
+    {
+        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    }
 
     pc.printf("\tnormalized torque \r\n");
-    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
-
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
 
     // 안전장치
-    if (f_wheel_torque_FL_Nm < 0.0)  f_wheel_torque_FL_Nm = 0.0;
-    if (f_wheel_torque_FR_Nm < 0.0)  f_wheel_torque_FR_Nm = 0.0;
-    if (f_wheel_torque_RL_Nm < 0.0)  f_wheel_torque_RL_Nm = 0.0;
-    if (f_wheel_torque_RR_Nm < 0.0)  f_wheel_torque_RR_Nm = 0.0;
+    for (dir = 0; dir < 4; dir++)
+    {
+        if (f_wheel_torque_Nm[dir] < 0.0)   f_wheel_torque_Nm[dir] = 0;
+    }
+    
+    f_wheel_torque_FL_Nm = f_wheel_torque_Nm[FL];
+    f_wheel_torque_FR_Nm = f_wheel_torque_Nm[FR];
+    f_wheel_torque_RL_Nm = f_wheel_torque_Nm[RL];
+    f_wheel_torque_RR_Nm = f_wheel_torque_Nm[RR];
 }
 
 
