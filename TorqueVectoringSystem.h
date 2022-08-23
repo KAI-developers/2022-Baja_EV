@@ -90,6 +90,10 @@
 #define MOTOR_OFF                       0
 
 
+Serial pc(USBTX, USBRX, 115200);
+
+
+
 
 
 class TorqueVectoringSystem {

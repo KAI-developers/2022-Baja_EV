@@ -1,25 +1,32 @@
 #include "mbed.h"
+#include "rtos.h"
+
 #include "TorqueVectoringSystem.h"
 #include "HallSensor.h"
 #include "MPU6050.h"
+
 
 //========================== Mbed to PC ROS Communication Thread =======================//
 #include "CarState.h"
 #include <ros.h>
 
+/*
 ros::NodeHandle nh;
 
 kai_msgs::CarState kai_msg;
 ros::Publisher carstate("carstate", &kai_msg);
 
+/*
 float f_temp=0.0;
 int cnt=0;
+*/
 
 //Serial pc1(USBTX, USBRX, 115200);
 
 //Thread thread;
-Thread thread1, thread2;
+Thread thread1; //,thread2;
 TorqueVectoringSystem TVS;
+Serial& pc_ = TVS.pc;
 
 void ros_thread(){
     while(true){
@@ -98,8 +105,8 @@ int main(){
     //thread
     thread1.start(ros_thread);
     */
-   
-    thread2.start(system_thread);
+    pc_.printf("main start");
+    system_thread();
 
     
     return 0;

@@ -1,15 +1,13 @@
 #include "TorqueVectoringSystem.h"
 
-#include "HallSensor.h"
-#include "MPU6050.h"
-#include <math.h>
 
-
-Serial pc(USBTX, USBRX, 115200);
 
 
 TorqueVectoringSystem::TorqueVectoringSystem()
 {
+    
+
+
     f_motor_current_FL_A = 0.0;
     f_motor_current_FR_A = 0.0;
     f_motor_current_RL_A = 0.0;
