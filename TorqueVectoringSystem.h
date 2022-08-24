@@ -20,7 +20,7 @@
 #define MAX_HANDLE_ANGLE                300.0
 #define MAX_STEERING_BIG_ANGLE          67.238
 #define MAX_STEERING_SMALL_ANGLE        55.267
-#define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
+#define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) 
 
 
 #define WHEEL_BASE                      1.371
