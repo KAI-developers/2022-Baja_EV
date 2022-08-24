@@ -33,7 +33,7 @@
 #define RL                              2
 #define RR                              3
 #define MAX_TORQUE                      17.0
-//#define ACTUAL_MAX_TORQUE_NY            10.0
+#define ACTUAL_MAX_TORQUE_NY            10.0
 //#define ACTUAL_MAX_TORQUE_SW            8.0
 //#define ACTUAL_MAX_TORQUE_SH            12.0    
 //#define ACTUAL_MAX_TORQUE_CH            9.0
