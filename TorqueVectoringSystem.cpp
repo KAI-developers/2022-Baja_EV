@@ -4,7 +4,6 @@
 #include "MPU6050.h"
 #include <math.h>
 
-Serial pc(USBTX, USBRX, 115200);
 
 
 TorqueVectoringSystem::TorqueVectoringSystem()
