@@ -710,10 +710,10 @@ void TorqueVectoringSystem::process_accel(
 
 
         // 0.0 ~ 1.0의 값으로 설정된 PWM신호를, 컨트롤러 특성에 맞게 map함수 구현
-        trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_FR = map_f(f_PWM_input_FR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_RL = map_f(f_PWM_input_RL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-        trimmed_throttle_RR = map_f(f_PWM_input_RR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
+        trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX_FL);
+        trimmed_throttle_FR = map_f(f_PWM_input_FR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX_FR);
+        trimmed_throttle_RL = map_f(f_PWM_input_RL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX_RL);
+        trimmed_throttle_RR = map_f(f_PWM_input_RR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX_RR);
 
         pc.printf("modified PWM value : \r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 

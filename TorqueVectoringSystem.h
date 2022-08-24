@@ -85,7 +85,10 @@
 #define PWM_PERIOD_US                   25
 
 #define CONTROLLER_IN_MIN               0.1
-#define CONTROLLER_IN_MAX               0.8
+#define CONTROLLER_IN_MAX_FL            0.81
+#define CONTROLLER_IN_MAX_FR            0.8
+#define CONTROLLER_IN_MAX_RL            0.8
+#define CONTROLLER_IN_MAX_RR            0.8
 
 #define TVS_ON                          1
 #define TVS_OFF                         0
