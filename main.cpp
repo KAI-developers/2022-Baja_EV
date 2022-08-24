@@ -8,22 +8,20 @@
 
 
 //========================== Mbed to PC ROS Communication Thread =======================//
-//#include "CarState.h"
-//#include <ros.h>
+#include "CarState.h"
+#include <ros.h>
 
 
+TorqueVectoringSystem TVS;
 
-/*
 ros::NodeHandle nh;
-//kai_msgs::CarState kai_msg;
-//ros::Publisher carstate("carstate", &kai_msg);
+kai_msgs::CarState kai_msg;
+ros::Publisher carstate("carstate", &kai_msg);
 //float f_temp=0.0;
 //int cnt=0;
-//Thread thread;
-//Thread thread1, thread2;
-//TorqueVectoringSystem TVS;
+
 Thread thread1, thread2;
-/*
+
 void ros_thread(){
     while(true){
         
@@ -47,11 +45,11 @@ void ros_thread(){
         wait_ms(125);
     }
 }
-*/
+
 
 //========================== Mbed to PC ROS Communication Thread =======================//
 
-TorqueVectoringSystem TVS;
+
 //========================== Torque Vectoring System Thread =======================//
 void system_thread() {
     TorqueVectoringSystem TVS;
@@ -95,14 +93,14 @@ void system_thread() {
 
 //========================== Main Code =======================//
 int main(){
-    /*
+    
     //ros init
     nh.initNode();
     nh.advertise(carstate);
     
     //thread
     thread1.start(ros_thread);
-    */
+    
    
     system_thread();
 
