@@ -83,6 +83,7 @@
 #define PREVIOUS                        0
 
 #define PWM_PERIOD_US                   25
+#define PWM_PERIOD_MS                   1
 
 #define CONTROLLER_IN_MIN               0.1
 #define CONTROLLER_IN_MAX               0.8

@@ -516,12 +516,17 @@ void TorqueVectoringSystem::process_accel(
     pc.printf("mpu6050 started!\r\n");
 
 
-    
+    /*    
     FL_Throttle_PWM.period_us(PWM_PERIOD_US);
     FR_Throttle_PWM.period_us(PWM_PERIOD_US);
     RL_Throttle_PWM.period_us(PWM_PERIOD_US);
     RR_Throttle_PWM.period_us(PWM_PERIOD_US);
-
+    */
+    FL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    FR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    RL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    RR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    
 
     while(1) {
 
