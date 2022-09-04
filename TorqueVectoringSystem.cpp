@@ -151,9 +151,18 @@ float TorqueVectoringSystem::CalAvgVel(float f_velocity1_ms, float f_velocity2_m
 */
 float TorqueVectoringSystem::CalHandlingVolt2WheelSteeringAngle(float f_handling_sensor_value)
 {
-    float resistor_angle = (f_handling_sensor_value - DEFAULT_VOLTAGE_INPUT) * MAX_RESISTOR_ANGLE;
-    float handle_angle = resistor_angle * (MAX_HANDLE_ANGLE / MAX_RESISTOR_LIMITED_ANGLE);
-    return handle_angle * (MAX_STEERING_ANGLE / MAX_HANDLE_ANGLE);
+    // float resistor_angle = (f_handling_sensor_value - DEFAULT_VOLTAGE_INPUT) * MAX_RESISTOR_ANGLE;
+    // float handle_angle = resistor_angle * (MAX_HANDLE_ANGLE / MAX_RESISTOR_LIMITED_ANGLE);
+    // return handle_angle * (MAX_STEERING_ANGLE / MAX_HANDLE_ANGLE);
+
+    float resistor_angle;
+    float handle_angle;
+    
+    resistor_angle = (f_handling_sensor_value - DEFAULT_VOLTAGE_INPUT) * MAX_RESISTOR_ANGLE;
+    handle_angle = resistor_angle * (MAX_HANDLE_ANGLE / MAX_RESISTOR_LIMITED_ANGLE);
+    handle_angle = handle_angle * (MAX_STEERING_ANGLE / MAX_HANDLE_ANGLE);
+
+    return handle_angle;
 }
 
 
@@ -218,7 +227,7 @@ float TorqueVectoringSystem::IMUFilter(float i_IMU_yaw_rate_radps)
     이 함수는 페달신호 최대 5V를 입력받는다고 가정하며, 이 것을 5V 스로틀신호 입력을 받는
     컨트롤러에 4개의 적절한 값 분배(스로틀신호)를 이룬 후에, 이에 대한 목표 토크를 출력한다.
 */
-void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
     float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm, float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm)
 
 {
@@ -226,19 +235,47 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     // normalize값 중 최대를 계산
     float max_weight;
     float f_wheel_torque_Nm[4];
+    float f_steering_angle_rad;
+    float pedal_throttle_voltage;
+    float R;                        // 팔길이 계산에 필요한 조향각 0도일 때 차량 중심과 바퀴축 거리
+    float phi;
+
+    float FL_arm_m;
+    float FR_arm_m;
+    float RL_arm_m;
+    float RR_arm_m;
+
+    float weight[4] = {0.0, 0.0, 0.0, 0.0};
+    float normalized_weight[4] = {0.0, 0.0, 0.0, 0.0};
+
+    float sum = 0.;
 
 
-    float f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
-    float pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
-    float R = sqrt(pow(WHEEL_BASE / 2.0, 2.0) + pow(TRACK / 2.0, 2.0));
 
-    float phi = atan((TRACK / 2.) / (WHEEL_BASE / 2.));
+    f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
+
+    pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
+    
+    if (pedal_throttle_voltage == 0.000000)
+    {
+        f_wheel_torque_FL_Nm = 0.0;
+        f_wheel_torque_FR_Nm = 0.0;
+        f_wheel_torque_RL_Nm = 0.0;
+        f_wheel_torque_RR_Nm = 0.0;
+
+        return -1;
+    }
+
+    
+    R = sqrt(pow(WHEEL_BASE / 2.0, 2.0) + pow(TRACK / 2.0, 2.0));
+
+    phi = atan((TRACK / 2.) / (WHEEL_BASE / 2.));
 
     // 팔길이 계산
-    float FL_arm_m = R * sin(phi - f_steering_angle_rad);
-    float FR_arm_m = R * sin(phi + f_steering_angle_rad);
-    float RL_arm_m = R * sin(phi);
-    float RR_arm_m = R * sin(phi);
+    FL_arm_m = R * sin(phi - f_steering_angle_rad);
+    FR_arm_m = R * sin(phi + f_steering_angle_rad);
+    RL_arm_m = R * sin(phi);
+    RR_arm_m = R * sin(phi);
 
     // only positive value of arm length used
     if(FL_arm_m < 0.0)  FL_arm_m = 0.0;
@@ -247,35 +284,31 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     if(RR_arm_m < 0.0)  RR_arm_m = 0.0;
     
     // need to erase this
-    pc.printf("\tfirst feed forward func \r\n");
-    pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
+    //pc.printf("\tfirst feed forward func \r\n");
+    //pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
 
 
-    float weight[4] = {0.0, 0.0, 0.0, 0.0};
-    float normalized_weight[4] = {0.0, 0.0, 0.0, 0.0};
-
-    float sum = 0.;
-
+    
     // 프로파일 함수에 대한 결과 계산
     weight[FL] = FL_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
     weight[FR] = FR_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
     weight[RL] = RL_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
     weight[RR] = RR_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
 
-    pc.printf("\tweight (profile func output) \r\n");
-    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
+    //pc.printf("\tweight (profile func output) \r\n");
+    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
 
 
     sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
-    pc.printf("\tsum : %f\r\n", sum);
+    //pc.printf("\tsum : %f\r\n", sum);
 
     //normalize
     for(dir = 0; dir < 4; dir++)
         normalized_weight[dir] = 4 * (pedal_throttle_voltage / sum) * weight[dir];
 
-    pc.printf("\tnormalized weight\r\n");
-    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
-            normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
+    //pc.printf("\tnormalized weight\r\n");
+    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+            //normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
 
     // find maximum normalized value
     max_weight = normalized_weight[FL];
@@ -286,7 +319,7 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
         }
     }
 
-    pc.printf("\tmax weight : %f\r\n", max_weight);
+    //pc.printf("\tmax weight : %f\r\n", max_weight);
 
 
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
@@ -295,9 +328,9 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
         f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
     }
 
-    pc.printf("\tnormalized torque \r\n");
-    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
-            f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+    //pc.printf("\tnormalized torque \r\n");
+    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            //f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
 
     // 안전장치
     for (dir = 0; dir < 4; dir++)
@@ -309,6 +342,8 @@ void TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     f_wheel_torque_FR_Nm = f_wheel_torque_Nm[FR];
     f_wheel_torque_RL_Nm = f_wheel_torque_Nm[RL];
     f_wheel_torque_RR_Nm = f_wheel_torque_Nm[RR];
+
+    return 0;
 }
 
 
@@ -584,6 +619,9 @@ void TorqueVectoringSystem::process_accel(
 
         //f_pedal_sensor_value 받기!
         f_pedal_sensor_value = Pedal_Sensor.read();
+        if (f_pedal_sensor_value <= PEDAL_MIN_VALUE)    f_pedal_sensor_value = PEDAL_MIN_VALUE;
+        if (f_pedal_sensor_value > PEDAL_MAX_VALUE)     f_pedal_sensor_value = PEDAL_MAX_VALUE;
+
         pc.printf("pedal raw value (0.0~1.0 value) : %f\r\n", f_pedal_sensor_value);
 
         //Modify pedal sensor vlaue range(true sensor value min~max) ----> (0.0 ~ 1.0)
