@@ -272,43 +272,45 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     phi = atan((TRACK / 2.) / (WHEEL_BASE / 2.));
 
     // 팔길이 계산
-    FL_arm_m = R * sin(phi - f_steering_angle_rad);
+    FL_arm_m = (-1) * R * sin(phi - f_steering_angle_rad);
     FR_arm_m = R * sin(phi + f_steering_angle_rad);
-    RL_arm_m = R * sin(phi);
+    RL_arm_m = (-1) * R * sin(phi);
     RR_arm_m = R * sin(phi);
 
+    /*
     // only positive value of arm length used
     if(FL_arm_m < 0.0)  FL_arm_m = 0.0;
     if(FR_arm_m < 0.0)  FR_arm_m = 0.0;
     if(RL_arm_m < 0.0)  RL_arm_m = 0.0;
     if(RR_arm_m < 0.0)  RR_arm_m = 0.0;
-    
+    */
+
     // need to erase this
-    //pc.printf("\tfirst feed forward func \r\n");
-    //pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
+    pc.printf("\tfirst feed forward func \r\n");
+    pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
 
 
     
-    // 프로파일 함수에 대한 결과 계산
-    weight[FL] = FL_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
-    weight[FR] = FR_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
-    weight[RL] = RL_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
-    weight[RR] = RR_arm_m * f_wheel_steering_angle_deg * pedal_throttle_voltage + pedal_throttle_voltage;
+    // 프로파일 함수에 대한 결과 계산 (rad 입력으로 수정)
+    weight[FL] = FL_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[FR] = FR_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[RL] = RL_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[RR] = RR_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
 
-    //pc.printf("\tweight (profile func output) \r\n");
-    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
+    pc.printf("\tweight (profile func output) \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
 
 
     sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
-    //pc.printf("\tsum : %f\r\n", sum);
+    pc.printf("\tsum : %f\r\n", sum);
 
     //normalize
     for(dir = 0; dir < 4; dir++)
         normalized_weight[dir] = 4 * (pedal_throttle_voltage / sum) * weight[dir];
 
-    //pc.printf("\tnormalized weight\r\n");
-    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
-            //normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
+    pc.printf("\tnormalized weight\r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+            normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
 
     // find maximum normalized value
     max_weight = normalized_weight[FL];
@@ -319,18 +321,19 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
         }
     }
 
-    //pc.printf("\tmax weight : %f\r\n", max_weight);
+    pc.printf("\tmax weight : %f\r\n", max_weight);
 
 
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
     for (dir = 0; dir < 4; dir++)
     {
-        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage) * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage)
+            * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
     }
 
-    //pc.printf("\tnormalized torque \r\n");
-    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
-            //f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+    pc.printf("\tnormalized torque \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
 
     // 안전장치
     for (dir = 0; dir < 4; dir++)

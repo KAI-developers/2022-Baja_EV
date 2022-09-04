@@ -53,7 +53,7 @@
 #define SHUNT_R                         0.00005
 #define ANALOG_RANGE                    3.3
 
-#define TORQUE_VECTORING_RATE           -3.0
+#define TORQUE_VECTORING_RATE           0
 #define FLOAT_MIN                       -1000.0
 
 #define KP_FOR_THROTTLE_FL              0.5
@@ -159,7 +159,7 @@ public:
     float CalInputYawRate(float f_wheel_steering_angle_deg, float f_avg_vel_ms);
     float IMUFilter(float i_IMU_yaw_rate_radps);
 
-    void WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+    bool WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
         float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm,
         float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm);
 
