@@ -612,7 +612,7 @@ void TorqueVectoringSystem::process_accel(
     
         mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
 
-        f_yawrate_meas_degs = IMU_gz;               // need to check this!!!!
+        f_yawrate_meas_degs = IMU_gy;               // 김치박스가 위로 세워짐!
         ////////////////////////////////////////////////////////////////// 
 
         f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
