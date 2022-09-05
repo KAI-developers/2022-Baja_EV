@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "HallSensor.h"
+#include "Plotting.h"
 
 //////////////////////////////////
 #define PEDAL_MIN_VALUE     0.213
@@ -14,6 +15,7 @@
 
 Plotting plot;
 unsigned int uiFlag_50ms = 0;
+
 
 void counter_1ms ()
 {
@@ -37,21 +39,21 @@ int main() {
     float RPM_RL;
     float RPM_RR;
     
-
+    /*
     Ticker ticker_1ms;
     ticker_1ms.attach(&counter_1ms, 0.001);
     Timer time;
     time.start();
-
+    */
     
 
     while(1) {
     
         RPM_RL = Hall_RL.getRPM();
-        RPM_RR = Hall_RL.getRPM();
+        RPM_RR = Hall_RR.getRPM();
 
         pc.printf("RL RPM : %f\t\t RR RPM", RPM_RL, RPM_RR);
-        
+
     }
 
 }
