@@ -62,7 +62,7 @@ int main() {
         throttle_out_RL = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_RL;
         throttle_out_RR = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_RR;
         
-        
+        // 1V 출력하여 opamp 배율 확인
         /*
         throttle_out_FL = 1.0 / 3.3;
         throttle_out_FR = 1.0 / 3.3;
