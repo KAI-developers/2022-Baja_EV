@@ -742,20 +742,13 @@ void TorqueVectoringSystem::process_accel(
                     trimmed_throttle_FL, trimmed_throttle_FR, trimmed_throttle_RL, trimmed_throttle_RR);
 
 
-        /* arduino nano로 대체 예정
-        FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // noninverting amp outworld(ideal gain 1.515)
-        FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
-        RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
-        RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
-        */
-
-        FL_Throttle_PWM = trimmed_throttle_FL;
-        FR_Throttle_PWM = trimmed_throttle_FR;
-        RL_Throttle_PWM = trimmed_throttle_RL;
-        RR_Throttle_PWM = trimmed_throttle_RR;    
-
-
-
+        
+        FL_Throttle_PWM = trimmed_throttle_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // noninverting amp outworld(ideal gain 1.515)
+        FR_Throttle_PWM = trimmed_throttle_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
+        RL_Throttle_PWM = trimmed_throttle_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
+        RR_Throttle_PWM = trimmed_throttle_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
+        
+        
         pc.printf("actual throttle signal(voltage)\r\n");
         pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
                     FL_Throttle_PWM.read() * 3.3, FR_Throttle_PWM.read() * 3.3, RL_Throttle_PWM.read() * 3.3, RR_Throttle_PWM.read() * 3.3);
