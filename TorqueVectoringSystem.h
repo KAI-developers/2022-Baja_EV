@@ -9,7 +9,7 @@
 #define MOTOR_POLE                      7
 
 
-#define WHEEL_RADIUS                    0.295
+#define WHEEL_RADIUS                    (0.53 / 2.0) // ev wheel
 #define GEAR_RATIO                      5.27
 //#define PI                              3.141592
 
