@@ -526,8 +526,8 @@ void TorqueVectoringSystem::process_accel(
     float trimmed_throttle_RL;
     float trimmed_throttle_RR;
 
-    HallSensor FL_Hall_A(FL_HALL_PIN);
-    HallSensor FR_Hall_A(FR_HALL_PIN);
+    //HallSensor FL_Hall_A(FL_HALL_PIN);
+    //HallSensor FR_Hall_A(FR_HALL_PIN);
     HallSensor RL_Hall_A(RL_HALL_PIN);
     HallSensor RR_Hall_A(RR_HALL_PIN);
 
@@ -570,8 +570,8 @@ void TorqueVectoringSystem::process_accel(
 
         pc.printf("entered WHILE : \r\n");
 
-        f_motor_RPM_FL = FL_Hall_A.getRPM();
-        f_motor_RPM_FR = FR_Hall_A.getRPM();
+        //f_motor_RPM_FL = FL_Hall_A.getRPM();
+        //f_motor_RPM_FR = FR_Hall_A.getRPM();
         f_motor_RPM_RL = RL_Hall_A.getRPM();
         f_motor_RPM_RR = RR_Hall_A.getRPM();
         
