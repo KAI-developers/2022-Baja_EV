@@ -52,8 +52,26 @@ int main() {
         RPM_RL = Hall_RL.getRPM();
         RPM_RR = Hall_RR.getRPM();
 
-        pc.printf("RL RPM : %f\t\t RR RPM", RPM_RL, RPM_RR);
+        
 
+        pc.printf("RL RPM : %f\t\t RR RPM : %f\r\n", RPM_RL, RPM_RR);
+
+
+        
+        /*
+        if(uiFlag_50ms>=50) {
+            uiFlag_50ms=0;
+
+            // clear plotting buffer
+            plot.reset();
+
+            // put data to buffer
+            plot.put(RL_RPM ,0);
+
+            // send buffer
+            plot.send(&pc);
+        }
+        */
     }
 
 }
