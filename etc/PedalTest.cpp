@@ -50,17 +50,18 @@ int main() {
 
         modified_pedal_value = map(pedal_read_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.1, FL_THROTTLE_MAX);
         
-        if (modified_pedal_value < 0.0)
-            modified_pedal_value = 0;
-            
-        pc.printf("modified pedal value (0.0 ~ 1.0) : %f\r\n", modified_pedal_value);
+        if (modified_pedal_value < 0.1)     modified_pedal_value = 0.1;
+        if (modified_pedal_value >= 0.81)   modified_pedal_value = 0.81;
+
         
+        pc.printf("modified pedal value (0.0 ~ 1.0) : %f\r\n", modified_pedal_value);
         
         
         throttle_out_FL = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_FL;
         throttle_out_FR = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_FR;
         throttle_out_RL = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_RL;
         throttle_out_RR = modified_pedal_value * IDEAL_OPAMP_GAIN / REAL_OPAMP_GAIN_RR;
+        
         
         // 1V 출력하여 opamp 배율 확인
         /*
