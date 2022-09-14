@@ -1,8 +1,31 @@
 #include "TorqueVectoringSystem.h"
 
 
-TorqueVectoringSystem::TorqueVectoringSystem()
+TorqueVectoringSystem::TorqueVectoringSystem(
+    PinName TVS_SWITCH_PIN, PinName FL_HALL_PIN, PinName FR_HALL_PIN, PinName RL_HALL_PIN, PinName RR_HALL_PIN, 
+    PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,
+    PinName FL_CURRENT_SENSOR_PIN, PinName FR_CURRENT_SENSOR_PIN, PinName RL_CURRENT_SENSOR_PIN, PinName RR_CURRENT_SENSOR_PIN,
+    PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN
+    )
+    :   RL_Hall_A(RL_HALL_PIN), RR_Hall_A(RR_HALL_PIN), mpu(MPU_SDA, MPU_SCL),
+        Handle_Sensor(HANDLE_SENSOR_PIN), FL_Current_OUT(FL_CURRENT_SENSOR_PIN), FR_Current_OUT(FR_CURRENT_SENSOR_PIN), RL_Current_OUT(RL_CURRENT_SENSOR_PIN),
+        RR_Current_OUT(RR_CURRENT_SENSOR_PIN), Pedal_Sensor(PEDAL_SENSOR_PIN),
+        FL_Throttle_PWM(FL_OUTPUT_THROTTLE_PIN), FR_Throttle_PWM(FR_OUTPUT_THROTTLE_PIN), RL_Throttle_PWM(RL_OUTPUT_THROTTLE_PIN), RR_Throttle_PWM(RR_OUTPUT_THROTTLE_PIN)
 {
+
+
+    FL_Throttle_PWM.period_us(PWM_PERIOD_US);
+    FR_Throttle_PWM.period_us(PWM_PERIOD_US);
+    RL_Throttle_PWM.period_us(PWM_PERIOD_US);
+    RR_Throttle_PWM.period_us(PWM_PERIOD_US);
+    /*
+    FL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    FR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    RL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    RR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
+    */
+
+
     f_motor_current_FL_A = 0.0;
     f_motor_current_FR_A = 0.0;
     f_motor_current_RL_A = 0.0;
@@ -72,6 +95,11 @@ TorqueVectoringSystem::TorqueVectoringSystem()
 
     IMU_gx = 0.0, IMU_gy = 0.0, IMU_gz = 0.0, IMU_ax = 0.0, IMU_ay = 0.0, IMU_az = 0.0;
     f_yawrate_meas_degs = 0.0;
+
+    FL_Throttle_PWM = 0.0;
+    FR_Throttle_PWM = 0.0;
+    RL_Throttle_PWM = 0.0;
+    RR_Throttle_PWM = 0.0;
 
 }
 
@@ -507,12 +535,9 @@ float TorqueVectoringSystem::ModifyPedalThrottle(float input, float in_min, floa
 }
 
 
-void TorqueVectoringSystem::process_accel(
-    HallSensor& RL_Hall_A, HallSensor& RR_Hall_A, MPU6050& mpu, 
-    AnalogIn& Handle_Sensor, AnalogIn& FL_Current_OUT, AnalogIn& FR_Current_OUT, AnalogIn& RL_Current_OUT, &AnalogIn RR_Current_OUT,
-    AnalogIn& Pedal_Sensor, PwmOut& FL_Throttle_PWM, PwmOut& FR_Throttle_PWM, PwmOut& RL_Throttle_PWM, PwmOut& RR_Throttle_PWM)
+void TorqueVectoringSystem::process_accel()
+{
 
-    {
 
     // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
 
@@ -520,6 +545,7 @@ void TorqueVectoringSystem::process_accel(
     float trimmed_throttle_FR;
     float trimmed_throttle_RL;
     float trimmed_throttle_RR;
+
 
 
     pc.printf("entered WHILE : \r\n");
@@ -547,10 +573,9 @@ void TorqueVectoringSystem::process_accel(
     pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
 
 
-
-
     //f_steering_sensor_value 받기!
     pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
+
 
     f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
 
@@ -598,6 +623,7 @@ void TorqueVectoringSystem::process_accel(
     WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_modified_sensor_value,
         f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
         f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
+
 
     pc.printf("feedforward torque : \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
@@ -680,7 +706,8 @@ void TorqueVectoringSystem::process_accel(
     f_PWM_input_RL = SumFFandPID(f_output_throttle_RL, f_PID_throttle_RL);
     f_PWM_input_RR = SumFFandPID(f_output_throttle_RR, f_PID_throttle_RR);
 
-    pc.printf(" raw throttle signal(PWM)\r\n");
+
+    pc.printf("raw throttle signal(PWM)\r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
 

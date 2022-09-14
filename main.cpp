@@ -53,7 +53,7 @@ void system_thread() {
 
     Serial pc_main(USBTX, USBRX, 115200);
 
-    TorqueVectoringSystem TVS;
+
 
     PinName TVS_SWITCH_PIN = p30;
 
@@ -80,50 +80,24 @@ void system_thread() {
     PinName RL_OUTPUT_THROTTLE_PIN = p23;
     PinName RR_OUTPUT_THROTTLE_PIN = p24;
 
-
-
-
-    //HallSensor FL_Hall_A(FL_HALL_PIN);
-    //HallSensor FR_Hall_A(FR_HALL_PIN);
-    HallSensor RL_Hall_A(RL_HALL_PIN);
-    HallSensor RR_Hall_A(RR_HALL_PIN);
-
-    MPU6050 mpu(MPU_SDA, MPU_SCL);                  // (sda, scl)
-    mpu.start();
-    pc_main.printf("mpu6050 started!\r\n");
-
-    AnalogIn Handle_Sensor(HANDLE_SENSOR_PIN);
-
-    AnalogIn FL_Current_OUT(FL_CURRENT_SENSOR_PIN);
-    AnalogIn FR_Current_OUT(FR_CURRENT_SENSOR_PIN);
-    AnalogIn RL_Current_OUT(RL_CURRENT_SENSOR_PIN);
-    AnalogIn RR_Current_OUT(RR_CURRENT_SENSOR_PIN);
-
-    AnalogIn Pedal_Sensor(PEDAL_SENSOR_PIN);
     
-    PwmOut FL_Throttle_PWM(FL_OUTPUT_THROTTLE_PIN);
-    PwmOut FR_Throttle_PWM(FR_OUTPUT_THROTTLE_PIN);
-    PwmOut RL_Throttle_PWM(RL_OUTPUT_THROTTLE_PIN);
-    PwmOut RR_Throttle_PWM(RR_OUTPUT_THROTTLE_PIN);
+    // mpu.start();
+    // pc_main.printf("mpu6050 started!\r\n");
+
     
-        
-    FL_Throttle_PWM.period_us(PWM_PERIOD_US);
-    FR_Throttle_PWM.period_us(PWM_PERIOD_US);
-    RL_Throttle_PWM.period_us(PWM_PERIOD_US);
-    RR_Throttle_PWM.period_us(PWM_PERIOD_US);
-    /*
-    FL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
-    FR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
-    RL_Throttle_PWM.period_ms(PWM_PERIOD_MS);
-    RR_Throttle_PWM.period_ms(PWM_PERIOD_MS);
-    */
-    
+
+    TorqueVectoringSystem TVS(
+        TVS_SWITCH_PIN, FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
+        HANDLE_SENSOR_PIN, MPU_SDA, MPU_SCL, PEDAL_SENSOR_PIN,
+        FL_CURRENT_SENSOR_PIN, FR_CURRENT_SENSOR_PIN, RL_CURRENT_SENSOR_PIN, RR_CURRENT_SENSOR_PIN,
+        FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN
+    );
+
+
+
     while(1) {
-        TVS.process_accel(
-            RL_Hall_A, RR_Hall_A, mpu, 
-            Handle_Sensor, FL_Current_OUT, FR_Current_OUT, RL_Current_OUT, RR_Current_OUT,
-            Pedal_Sensor, FL_Throttle_PWM, FR_Throttle_PWM, RL_Throttle_PWM, RR_Throttle_PWM)
-
+        TVS.process_accel();
+  
     }
     
 }
