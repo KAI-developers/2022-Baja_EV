@@ -3,49 +3,48 @@
 
 //========================== Mbed to PC ROS Communication Thread =======================//
 //#include "CarState.h"
-//#include <ros.h>
+#include "AutonomousMessage.h"
+#include <ros.h>
 
 
 
-/*
-ros::NodeHandle nh;
-//kai_msgs::CarState kai_msg;
-//ros::Publisher carstate("carstate", &kai_msg);
-//float f_temp=0.0;
-//int cnt=0;
-//Thread thread;
-//Thread thread1, thread2;
-//TorqueVectoringSystem TVS;
-Thread thread1, thread2;
-/*
+
+Thread ros_thread;
+
 void ros_thread(){
+
+    ros::NodeHandle nh;
+    KAI_msgs::AutonomousSignal auto_msg;
+    ros::Publisher autonomous_signal("AutonomousSignal", &auto_msg);
+
+    
+    nh.initNode();
+    nh.advertise(autonomous_signal);
+
+    // just for test
+    AnalogIn resistor(p19);
+    float resistor_value = 0.0;
+
     while(true){
+
+        resistor_value = resistor.read();
         
-        kai_msg.f_wheel_velocity_FL_ms=TVS.f_vel_FL_ms;
-        kai_msg.f_wheel_velocity_FR_ms=TVS.f_vel_FR_ms;
-        kai_msg.f_wheel_velocity_RL_ms=TVS.f_vel_RL_ms;
-        kai_msg.f_wheel_velocity_RR_ms=TVS.f_vel_RR_ms;
-        kai_msg.f_car_velocity_ms=TVS.f_vehicle_vel_ms;
-        kai_msg.f_motor_torque_FL_Nm=TVS.f_measured_torque_FL_Nm;
-        kai_msg.f_motor_torque_FR_Nm=TVS.f_measured_torque_FR_Nm;
-        kai_msg.f_motor_torque_RL_Nm=TVS.f_measured_torque_RL_Nm;
-        kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
-        kai_msg.i_throttle = TVS.i_PWR_percentage;
-        kai_msg.c_torque_mode_flag = TVS_ON;
-        kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
-        carstate.publish( & kai_msg );
+        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.c_automotive_state = MANUAL_MODE;
+        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.c_automotive_state = AUTONOMOUS_READY;
+        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.c_automotive_state = AUTONOMOUS_DRIVING;
+        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.c_automotive_state = AUTONOMOUS_END;
+        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.c_automotive_state = AUTONOMOUS_EMERGENCY;
+        
+        autonomous_signal.publish( &auto_msg );
         nh.spinOnce();
         wait_ms(125);
     }
 }
-*/
+
 
 //========================== Mbed to PC ROS Communication Thread =======================//
 
-//TorqueVectoringSystem TVS;
+
 //========================== Torque Vectoring System Thread =======================//
 
 
@@ -106,20 +105,12 @@ void system_thread() {
 
 
 
-//========================== Main Code =======================//
+
 int main(){
-    /*
-    //ros init
-    nh.initNode();
-    nh.advertise(carstate);
-    
-    //thread
-    thread1.start(ros_thread);
-    */
-   
+
+    ros_thread.start(ros_thread);
+
     system_thread();
 
-    
     return 0;
 }
-//========================== Main Code =======================//
