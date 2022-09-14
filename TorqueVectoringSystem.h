@@ -6,7 +6,7 @@
 #include "HallSensor.h"
 #include "MPU6050.h"
 
-#define MOTOR_POLE                      7
+#define MOTOR_POLE_PAIR                 7
 
 
 #define WHEEL_RADIUS                    (0.53 / 2.0) // ev wheel
@@ -96,11 +96,38 @@
 
 
 
-
-
 class TorqueVectoringSystem {
+
 public:
-    TorqueVectoringSystem();
+    TorqueVectoringSystem(
+        PinName TVS_SWITCH_PIN, PinName FL_HALL_PIN, PinName FR_HALL_PIN, PinName RL_HALL_PIN, PinName RR_HALL_PIN, 
+        PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,
+        PinName FL_CURRENT_SENSOR_PIN, PinName FR_CURRENT_SENSOR_PIN, PinName RL_CURRENT_SENSOR_PIN, PinName RR_CURRENT_SENSOR_PIN,
+        PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
+
+
+    //HallSensor FL_Hall_A(FL_HALL_PIN);
+    //HallSensor FR_Hall_A(FR_HALL_PIN);
+    HallSensor RL_Hall_A;
+    HallSensor RR_Hall_A;
+
+    MPU6050 mpu;
+
+    AnalogIn Handle_Sensor;
+
+    AnalogIn FL_Current_OUT;
+    AnalogIn FR_Current_OUT;
+    AnalogIn RL_Current_OUT;
+    AnalogIn RR_Current_OUT;
+
+    AnalogIn Pedal_Sensor;
+    
+    PwmOut FL_Throttle_PWM;
+    PwmOut FR_Throttle_PWM;
+    PwmOut RL_Throttle_PWM;
+    PwmOut RR_Throttle_PWM;
+
+
 
     float f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A;
 
@@ -146,9 +173,12 @@ public:
 
     float f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR;
     
+
     float f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR;
     float f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR;
 
+
+    // IMU센서 관련 값
     float IMU_gx, IMU_gy, IMU_gz, IMU_ax, IMU_ay, IMU_az;
     float f_yawrate_meas_degs;
 
@@ -182,16 +212,16 @@ public:
 
     float map_f(float input, float in_min, float in_max, float out_min, float out_max);
 
-    void process_accel(
-        HallSensor& RL_Hall_A, HallSensor& RR_Hall_A, MPU6050& mpu, 
-        AnalogIn& Handle_Sensor, AnalogIn& FL_Current_OUT, AnalogIn& FR_Current_OUT, AnalogIn& RL_Current_OUT, &AnalogIn RR_Current_OUT,
-        AnalogIn& Pedal_Sensor, PwmOut& FL_Throttle_PWM, PwmOut& FR_Throttle_PWM, PwmOut& RL_Throttle_PWM, PwmOut& RR_Throttle_PWM);
-
+    void process_accel();
 
     void process_off(
     PinName PEDAL_SENSOR_PIN, PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
-        
+
+
+   
 };
+
+
 
 
 #endif

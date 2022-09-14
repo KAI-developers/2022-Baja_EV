@@ -1,10 +1,4 @@
-#include "mbed.h"
 #include "TorqueVectoringSystem.h"
-
-//#include "HallSensor.h"
-//#include "MPU6050.h"
-
-
 
 
 //========================== Mbed to PC ROS Communication Thread =======================//
@@ -51,10 +45,15 @@ void ros_thread(){
 
 //========================== Mbed to PC ROS Communication Thread =======================//
 
-TorqueVectoringSystem TVS;
+//TorqueVectoringSystem TVS;
 //========================== Torque Vectoring System Thread =======================//
+
+
 void system_thread() {
-    TorqueVectoringSystem TVS;
+
+    Serial pc_main(USBTX, USBRX, 115200);
+
+    
 
     PinName TVS_SWITCH_PIN = p30;
 
@@ -80,13 +79,29 @@ void system_thread() {
     PinName FR_OUTPUT_THROTTLE_PIN = p22;
     PinName RL_OUTPUT_THROTTLE_PIN = p23;
     PinName RR_OUTPUT_THROTTLE_PIN = p24;
+
     
+
+
+    // mpu.start();
+    // pc_main.printf("mpu6050 started!\r\n");
+
     
-    TVS.process_accel(
+
+    TorqueVectoringSystem TVS(
         TVS_SWITCH_PIN, FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
         HANDLE_SENSOR_PIN, MPU_SDA, MPU_SCL, PEDAL_SENSOR_PIN,
         FL_CURRENT_SENSOR_PIN, FR_CURRENT_SENSOR_PIN, RL_CURRENT_SENSOR_PIN, RR_CURRENT_SENSOR_PIN,
-        FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN);
+        FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN
+    );
+
+
+
+    while(1) {
+        TVS.process_accel();
+  
+    }
+    
 }
 //========================== Torque Vectoring System Thread =======================//
 
