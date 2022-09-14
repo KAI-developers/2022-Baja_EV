@@ -601,7 +601,7 @@ void TorqueVectoringSystem::process_accel()
 
     //f_pedal_sensor_value 받기!
     f_pedal_sensor_value = Pedal_Sensor.read();
-    if (f_pedal_sensor_value <= PEDAL_MIN_VALUE)    f_pedal_sensor_value = PEDAL_MIN_VALUE;
+    if (f_pedal_sensor_value <= PEDAL_MIN_VALUE)    f_pedal_sensor_value = PEDAL_MIN_VALUE;     // 안전장치
     if (f_pedal_sensor_value > PEDAL_MAX_VALUE)     f_pedal_sensor_value = PEDAL_MAX_VALUE;
 
     pc.printf("pedal raw value (0.0~1.0 value) : %f\r\n", f_pedal_sensor_value);
@@ -637,16 +637,6 @@ void TorqueVectoringSystem::process_accel()
     pc.printf("P controlled torque output \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
 
-
-
-    /*
-    f_motor_current_FL_A = OpAmp2Current(FL_Opamp_OUT.read());
-    f_motor_current_FR_A = OpAmp2Current(FR_Opamp_OUT.read());
-    f_motor_current_RL_A = OpAmp2Current(RL_Opamp_OUT.read());
-    f_motor_current_RR_A = OpAmp2Current(RR_Opamp_OUT.read());
-    pc.printf("current value \r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
-    */
 
 
 
