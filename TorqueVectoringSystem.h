@@ -182,10 +182,11 @@ public:
 
     float map_f(float input, float in_min, float in_max, float out_min, float out_max);
 
-    void process_accel(PinName TVS_SWITCH_PIN, PinName FL_Hall_PIN, PinName FR_Hall_PIN, PinName RL_Hall_PIN, PinName RR_Hall_PIN, 
-        PinName HANDLE_SENSOR_PIN, PinName MPU_SDA, PinName MPU_SCL, PinName PEDAL_SENSOR_PIN,
-        PinName FL_OPAMP_OUT_PIN, PinName FR_OPAMP_OUT_PIN, PinName RL_OPAMP_OUT_PIN, PinName RR_OPAMP_OUT_PIN, 
-        PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
+    void process_accel(
+        HallSensor& RL_Hall_A, HallSensor& RR_Hall_A, MPU6050& mpu, 
+        AnalogIn& Handle_Sensor, AnalogIn& FL_Current_OUT, AnalogIn& FR_Current_OUT, AnalogIn& RL_Current_OUT, &AnalogIn RR_Current_OUT,
+        AnalogIn& Pedal_Sensor, PwmOut& FL_Throttle_PWM, PwmOut& FR_Throttle_PWM, PwmOut& RL_Throttle_PWM, PwmOut& RR_Throttle_PWM);
+
 
     void process_off(
     PinName PEDAL_SENSOR_PIN, PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
