@@ -6,10 +6,21 @@
  float32 f_brake_sig
  float32 f_steering_sig
 
- uint32 i_autonomous_state
- uint32 i_estop_trig
- uint32 i_auto_stop_trig
+ uint8 c_autonomous_state
+ # MANUAL_MODE             0  
+ # AUTONOMOUS_READY        1
+ # AUTONOMOUS_DRIVING      2
+ # AUTONOMOUS_END          3
+ # AUTONOMOUS_EMERGENCY    4
 
+
+ uint8 c_estop_trig
+ # ESTOP_STOP              0
+ # ESTOP_RUN               1
+
+ uint8 c_auto_stop_trig
+ # STOPTRIGGER_RUNNING     0
+ # STOPTRIGGER_END         1
 *
 */
 
@@ -50,19 +61,19 @@ namespace KAI_msgs
         _float_data f_brake_sig;
         _float_data f_steering_sig;
 
-        typedef int32_t _int_data;
-        _int_data i_autonomous_state;
-        _int_data i_estop_trig;
-        _int_data i_auto_stop_trig;
+        typedef int8_t _char_data;
+        _char_data c_autonomous_state;
+        _char_data c_estop_trig;
+        _char_data c_auto_stop_trig;
 
 
         AutonomousSignal():
             f_accel_sig(0), 
             f_brake_sig(0), 
             f_steering_sig(0), 
-            i_autonomous_state(0),        // default MANUAL_MODE
-            i_estop_trig(0),                // default STOP_MODE
-            i_auto_stop_trig(0)       // default autonomous running
+            c_autonomous_state(0),        // default MANUAL_MODE
+            c_estop_trig(0),                // default STOP_MODE
+            c_auto_stop_trig(0)       // default autonomous running
             {
             }
 
@@ -101,30 +112,21 @@ namespace KAI_msgs
 
 
            union{
-                int32_t real;
+                int8_t real;
                 uint32_t base;
             } u_data_i;
 
-            u_data_i.real=this->i_autonomous_state;
+            u_data_i.real=this->c_autonomous_state;
             *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
-            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
-            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
-            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
-            offset += sizeof(this->i_autonomous_state);
+            offset += sizeof(this->c_autonomous_state);
 
-            u_data_i.real=this->i_estop_trig;
+            u_data_i.real=this->c_estop_trig;
             *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
-            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
-            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
-            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
-            offset += sizeof(this->i_estop_trig);
+            offset += sizeof(this->c_estop_trig);
 
-            u_data_i.real=this->i_auto_stop_trig;
+            u_data_i.real=this->c_auto_stop_trig;
             *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
-            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
-            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
-            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
-            offset += sizeof(this->i_auto_stop_trig);
+            offset += sizeof(this->c_auto_stop_trig);
 
 
             return offset;
@@ -173,36 +175,27 @@ namespace KAI_msgs
 
             u_data_i.base = 0;
             u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-            this->i_autonomous_state = u_data_i.real;
-            offset += sizeof(this->i_autonomous_state);
+            this->c_autonomous_state = u_data_i.real;
+            offset += sizeof(this->c_autonomous_state);
 
 
             u_data_i.base = 0;
             u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-            this->i_estop_trig = u_data_i.real;
-            offset += sizeof(this->i_estop_trig);
+            this->c_estop_trig = u_data_i.real;
+            offset += sizeof(this->c_estop_trig);
 
 
             u_data_i.base = 0;
             u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-            this->i_auto_stop_trig = u_data_i.real;
-            offset += sizeof(this->i_auto_stop_trig);
+            this->c_auto_stop_trig = u_data_i.real;
+            offset += sizeof(this->c_auto_stop_trig);
 
 
             return offset;
         }
 
         const char * getType() { return "autonomous_message/autonomous_message"; };
-        const char * getMD5() { return "9d781d5f9902017535bcd729642f2fe7"; };
+        const char * getMD5() { return "bb5506184944dfff7fe2a1f7b829572c"; };
 
     };
 }

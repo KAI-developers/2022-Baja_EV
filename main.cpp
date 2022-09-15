@@ -33,11 +33,11 @@ void ros_thread(){
 
         resistor_value = resistor.read();
 
-        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.i_autonomous_state = 0;
-        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.i_autonomous_state = 1;
-        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.i_autonomous_state = 2;
-        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.i_autonomous_state = 3;
-        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.i_autonomous_state = 4;
+        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.c_autonomous_state = 0;
+        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.c_autonomous_state = 1;
+        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.c_autonomous_state = 2;
+        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.c_autonomous_state = 3;
+        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.c_autonomous_state = 4;
         
         autonomous_message.publish( &auto_msg );
         nh.spinOnce();
