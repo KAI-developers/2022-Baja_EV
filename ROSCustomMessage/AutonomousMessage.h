@@ -6,15 +6,17 @@
  float32 f_brake_sig
  float32 f_steering_sig
 
- uint8 c_automotive_state
- uint8 c_estop_trig
- uint8 c_autonomous_stop_trig
+ uint32 i_autonomous_state
+ uint32 i_estop_trig
+ uint32 i_auto_stop_trig
 
 *
 */
 
-#ifndef ROS_MESSAGE_FOR_KAI_AUTONOMOUS
-#define ROS_MESSAGE_FOR_KAI_AUTONOMOUS
+#ifndef _ROS_std_msgs_Byte_h
+#define _ROS_std_msgs_Byte_h
+
+
 
 #include <stdint.h>
 #include <string.h>
@@ -22,7 +24,7 @@
 #include "ros/msg.h"
 
 
-// for c_automotive_state
+// for c_autonomous_state
 #define MANUAL_MODE             0
 #define AUTONOMOUS_READY        1
 #define AUTONOMOUS_DRIVING      2
@@ -33,41 +35,36 @@
 #define ESTOP_STOP              0
 #define ESTOP_RUN               1
 
-// for c_autonomous_stop_trig
+// for c_auto_stop_trig
 #define STOPTRIGGER_RUNNING     0
 #define STOPTRIGGER_END         1
 
 
 namespace KAI_msgs
 {
-    class AutonomousSignal : public ros::Msg
+    class AutonomousSignal: public ros::Msg
     {
     public:
         typedef float _float_data;
-        typedef int8_t _char_data;
-
         _float_data f_accel_sig;
         _float_data f_brake_sig;
         _float_data f_steering_sig;
 
-        _char_data c_automotive_state;
-
-        _char_data c_estop_trig;
-
-        _char_data c_autonomous_stop_trig;
+        typedef int32_t _int_data;
+        _int_data i_autonomous_state;
+        _int_data i_estop_trig;
+        _int_data i_auto_stop_trig;
 
 
         AutonomousSignal():
-            f_accel_sig(0.0), 
-            f_brake_sig(0.0), 
-            f_steering_sig(0.0), 
-        
-            c_autonomotive_state(MANUAL_MODE),
-
-            c_estop_trig(ESTOP_STOP),
-
-            c_autonomous_stop_trig(STOPTRIGGER_RUNNING),
-            {}
+            f_accel_sig(0), 
+            f_brake_sig(0), 
+            f_steering_sig(0), 
+            i_autonomous_state(0),        // default MANUAL_MODE
+            i_estop_trig(0),                // default STOP_MODE
+            i_auto_stop_trig(0)       // default autonomous running
+            {
+            }
 
 
 
@@ -103,23 +100,31 @@ namespace KAI_msgs
 
 
 
-
-            union{
-                int8_t real;
+           union{
+                int32_t real;
                 uint32_t base;
-            } u_flag;
+            } u_data_i;
 
-            u_flag.real=this->c_automotive_state;
-            *(outbuffer + offset + 0) = (u_flag.base >> (8 * 0)) & 0xFF;
-            offset += sizeof(this->c_automotive_state);
+            u_data_i.real=this->i_autonomous_state;
+            *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->i_autonomous_state);
 
-            u_flag.real=this->c_estop_trig;
-            *(outbuffer + offset + 0) = (u_flag.base >> (8 * 0)) & 0xFF;
-            offset += sizeof(this->c_estop_trig);
+            u_data_i.real=this->i_estop_trig;
+            *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->i_estop_trig);
 
-            u_flag.real=this->c_autonomous_stop_trig;
-            *(outbuffer + offset + 0) = (u_flag.base >> (8 * 0)) & 0xFF;
-            offset += sizeof(this->c_autonomous_stop_trig);
+            u_data_i.real=this->i_auto_stop_trig;
+            *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->i_auto_stop_trig);
 
 
             return offset;
@@ -162,32 +167,43 @@ namespace KAI_msgs
 
 
             union{
-                int8_t real;
+                int32_t real;
                 uint32_t base;
-            } u_flag;
+            } u_data_i;
 
-            u_flag.base=0;
-            u_flag.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            this->c_automotive_state = u_flag.real;
-            offset += sizeof(this->c_automotive_state);
+            u_data_i.base = 0;
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->i_autonomous_state = u_data_i.real;
+            offset += sizeof(this->i_autonomous_state);
 
-            u_flag.base=0;
-            u_flag.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            this->c_estop_trig = u_flag.real;
-            offset += sizeof(this->c_estop_trig);
 
-            u_flag.base=0;
-            u_flag.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-            this->c_automotive_stop_trig = u_flag.real;
-            offset += sizeof(this->c_automotive_stop_trig);
+            u_data_i.base = 0;
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->i_estop_trig = u_data_i.real;
+            offset += sizeof(this->i_estop_trig);
+
+
+            u_data_i.base = 0;
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            u_data_i.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->i_auto_stop_trig = u_data_i.real;
+            offset += sizeof(this->i_auto_stop_trig);
 
 
             return offset;
         }
 
-        const char * getType() { return "autonomous_message/AutonomousSignal"; };
+        const char * getType() { return "autonomous_message/autonomous_message"; };
         const char * getMD5() { return "9d781d5f9902017535bcd729642f2fe7"; };
 
     };
 }
-#endif      //ROS_MESSAGE_FOR_KAI_AUTONOMOUS
+#endif 

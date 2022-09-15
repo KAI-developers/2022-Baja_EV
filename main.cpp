@@ -4,22 +4,26 @@
 //========================== Mbed to PC ROS Communication Thread =======================//
 //#include "CarState.h"
 #include "AutonomousMessage.h"
+//#include "CustomFrame.h"
 #include <ros.h>
 
 
 
 
-Thread ros_thread;
+Thread thread_ROS;
+
+
 
 void ros_thread(){
 
-    ros::NodeHandle nh;
     KAI_msgs::AutonomousSignal auto_msg;
-    ros::Publisher autonomous_signal("AutonomousSignal", &auto_msg);
+    ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
 
-    
+    ros::NodeHandle nh;
     nh.initNode();
-    nh.advertise(autonomous_signal);
+    nh.advertise(autonomous_message);
+    
+
 
     // just for test
     AnalogIn resistor(p19);
@@ -28,17 +32,49 @@ void ros_thread(){
     while(true){
 
         resistor_value = resistor.read();
+
+        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.i_autonomous_state = 0;
+        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.i_autonomous_state = 1;
+        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.i_autonomous_state = 2;
+        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.i_autonomous_state = 3;
+        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.i_autonomous_state = 4;
         
-        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.c_automotive_state = MANUAL_MODE;
-        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.c_automotive_state = AUTONOMOUS_READY;
-        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.c_automotive_state = AUTONOMOUS_DRIVING;
-        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.c_automotive_state = AUTONOMOUS_END;
-        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.c_automotive_state = AUTONOMOUS_EMERGENCY;
-        
-        autonomous_signal.publish( &auto_msg );
+        autonomous_message.publish( &auto_msg );
         nh.spinOnce();
         wait_ms(125);
     }
+    
+
+    /*
+    // for checking... 왜 되지?
+    kai_msgs::Practice kai_msg;
+    ros::Publisher Practice("Practice", &kai_msg); 
+    
+    ros::NodeHandle nh;
+    nh.initNode();
+    nh.advertise(Practice);
+    
+
+
+    // just for test
+    AnalogIn resistor(p19);
+    float resistor_value = 0.0;
+
+    while(true){
+
+        resistor_value = resistor.read();
+
+        if (resistor_value >= 0.0 && resistor_value < 0.2)          kai_msg.i_throttle = 0;
+        else if (resistor_value >= 0.2 && resistor_value < 0.4)     kai_msg.i_throttle = 1;
+        else if (resistor_value >= 0.4 && resistor_value < 0.6)     kai_msg.i_throttle = 2;
+        else if (resistor_value >= 0.6 && resistor_value < 0.8)     kai_msg.i_throttle = 3;
+        else if (resistor_value >= 0.8 && resistor_value < 1.1)     kai_msg.i_throttle = 4;
+        
+        Practice.publish( & kai_msg );
+        nh.spinOnce();
+        wait_ms(125);
+    }
+    */
 }
 
 
@@ -50,7 +86,7 @@ void ros_thread(){
 
 void system_thread() {
 
-    Serial pc_main(USBTX, USBRX, 115200);
+    // Serial pc_main(USBTX, USBRX, 115200);
 
 
 
@@ -108,7 +144,8 @@ void system_thread() {
 
 int main(){
 
-    ros_thread.start(ros_thread);
+
+    thread_ROS.start(ros_thread);
 
     system_thread();
 
