@@ -25,6 +25,8 @@
         이나영
         김현우
         전민경
+
+    Especially thanks to Jiwon Seok, A.K.A. PowerRanger RED
 */
 
 
