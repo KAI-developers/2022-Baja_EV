@@ -47,7 +47,8 @@
 #define KP_FOR_TORQUE_RR                0.1
 #define KT                              17/148  //motor torque constant
 
-#define CURRENT_SENSOR_RANGE            200
+#define CURRENT_SENSOR_VALUE_m50A       1.1906
+#define CURRENT_SENSOR_VALUE_100A       2.7056
 
 #define AMP_RATE_MOTOR                  400.0
 #define AMP_RATE_BATTERY                100.0
