@@ -350,9 +350,9 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
     for (dir = 0; dir < 4; dir++)
     {
-        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage);
-            // * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
-            // 홀전류센서 장착 이후 토크 관련으로 계산 시 사용 요망
+        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage)
+            * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+            // 홀전류센서 장착 이후 실제 MAX_TORQUE 수정 요망
     }
 
     //pc.printf("\tnormalized torque \r\n");
