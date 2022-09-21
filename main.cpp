@@ -62,7 +62,7 @@ void AssiStatePublish(){
         nh.spinOnce();
         wait_ms(125);
     } 
-    /* */
+    /* for testing ros communication with arduino nano */
 }
 
 /*
@@ -159,9 +159,8 @@ void CarDriving() {
 
 int main(){
 
-    Thread thread_ROS;
-
-    thread_ROS.start(AssiStatePublish);
+    // Thread thread_ROS;
+    // thread_ROS.start(AssiStatePublish);
 
     CarDriving();
 
