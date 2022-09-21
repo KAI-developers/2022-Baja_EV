@@ -4,17 +4,14 @@
 //========================== Mbed to PC ROS Communication Thread =======================//
 //#include "CarState.h"
 #include "AutonomousMessage.h"
-//#include "CustomFrame.h"
 #include <ros.h>
 
 
 
+void AssiStatePublish(){
 
-Thread thread_ROS;
+    /* for testing ros communication with arduino nano */
 
-
-
-void ros_thread(){
 
     KAI_msgs::AutonomousSignal auto_msg;
     ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
@@ -42,40 +39,10 @@ void ros_thread(){
         autonomous_message.publish( &auto_msg );
         nh.spinOnce();
         wait_ms(125);
-    }
-    
-
-    /*
-    // for checking... 왜 되지?
-    kai_msgs::Practice kai_msg;
-    ros::Publisher Practice("Practice", &kai_msg); 
-    
-    ros::NodeHandle nh;
-    nh.initNode();
-    nh.advertise(Practice);
-    
-
-
-    // just for test
-    AnalogIn resistor(p19);
-    float resistor_value = 0.0;
-
-    while(true){
-
-        resistor_value = resistor.read();
-
-        if (resistor_value >= 0.0 && resistor_value < 0.2)          kai_msg.i_throttle = 0;
-        else if (resistor_value >= 0.2 && resistor_value < 0.4)     kai_msg.i_throttle = 1;
-        else if (resistor_value >= 0.4 && resistor_value < 0.6)     kai_msg.i_throttle = 2;
-        else if (resistor_value >= 0.6 && resistor_value < 0.8)     kai_msg.i_throttle = 3;
-        else if (resistor_value >= 0.8 && resistor_value < 1.1)     kai_msg.i_throttle = 4;
-        
-        Practice.publish( & kai_msg );
-        nh.spinOnce();
-        wait_ms(125);
-    }
-    */
+    } 
+    /* */
 }
+
 
 
 //========================== Mbed to PC ROS Communication Thread =======================//
@@ -84,7 +51,7 @@ void ros_thread(){
 //========================== Torque Vectoring System Thread =======================//
 
 
-void system_thread() {
+void CarDriving() {
 
     // Serial pc_main(USBTX, USBRX, 115200);
 
@@ -140,14 +107,13 @@ void system_thread() {
 
 
 
-
-
 int main(){
 
+    Thread thread_ROS;
 
-    thread_ROS.start(ros_thread);
+    thread_ROS.start(AssiStatePublish);
 
-    system_thread();
+    CarDriving();
 
     return 0;
 }
