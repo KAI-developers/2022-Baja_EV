@@ -143,7 +143,7 @@ void CarDriving() {
     PinName RR_OUTPUT_THROTTLE_PIN = p24;
 
     
-    mpu.start();
+    
     // mpu 시작했는지 안했는지 표시해주는 함수 작성해야되는데 귀찮음
 
     TorqueVectoringSystem TVS(
@@ -152,7 +152,7 @@ void CarDriving() {
         FL_CURRENT_SENSOR_PIN, FR_CURRENT_SENSOR_PIN, RL_CURRENT_SENSOR_PIN, RR_CURRENT_SENSOR_PIN,
         FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN
     );
-
+    TVS.mpu.start();
 
 
     while(1) {
