@@ -3,8 +3,6 @@
  
 #include "mbed.h"
  
-#define PI 3.141592
- 
  
 class HallSensor
 {
@@ -13,10 +11,10 @@ public:
     
     int getPinState ();
     int edgestate;
-    float getRPM();
+    float getRPM();             // editted by NaYoung
  
 protected:
-    void risingCallback();
+    void risingCallback();      // editted by NaYoung
  
     InterruptIn m_hallSensor;
     Timer m_timer_sec;
