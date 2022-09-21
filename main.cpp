@@ -15,10 +15,16 @@
                                             _/ |                                                                  | |                     
                                            |__/                                                                   |_|                     
 
-    박성훈
-    이나영
-    김현우
-    전민경
+    Torque Vectoring System for 4-wheel independent driving car
+    
+    + ROS publisher for management system
+    + Autonomous System State Indicator publisher
+
+    Developers : 
+        박성훈
+        이나영
+        김현우
+        전민경
 */
 
 
