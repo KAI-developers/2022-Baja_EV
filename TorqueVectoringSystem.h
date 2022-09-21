@@ -20,7 +20,7 @@
 #define MAX_HANDLE_ANGLE                300.0
 #define MAX_STEERING_BIG_ANGLE          67.238
 #define MAX_STEERING_SMALL_ANGLE        55.267
-#define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
+#define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) 
 
 
 #define WHEEL_BASE                      1.371
@@ -34,9 +34,9 @@
 #define RR                              3
 #define MAX_TORQUE                      17.0
 #define ACTUAL_MAX_TORQUE_NY            10.0
-#define ACTUAL_MAX_TORQUE_SW            8.0
-#define ACTUAL_MAX_TORQUE_SH            12.0    
-#define ACTUAL_MAX_TORQUE_CH            9.0
+//#define ACTUAL_MAX_TORQUE_SW            8.0
+//#define ACTUAL_MAX_TORQUE_SH            12.0    
+//#define ACTUAL_MAX_TORQUE_CH            9.0
 #define CONTROLLER_INPUT_VOLT_RANGE     5.0
 
 

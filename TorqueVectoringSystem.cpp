@@ -357,13 +357,16 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
     //pc.printf("\tnormalized torque \r\n");
     //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
             //f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage);
+                       // * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+    }
+
 
     // 안전장치
-    for (dir = 0; dir < 4; dir++)
-    {
-        if (f_wheel_torque_Nm[dir] < 0.0)   f_wheel_torque_Nm[dir] = 0;
-    }
-    
+    //pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            //f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+
+
     f_wheel_torque_FL_Nm = f_wheel_torque_Nm[FL];
     f_wheel_torque_FR_Nm = f_wheel_torque_Nm[FR];
     f_wheel_torque_RL_Nm = f_wheel_torque_Nm[RL];
@@ -550,6 +553,7 @@ void TorqueVectoringSystem::process_accel()
 
     //pc.printf("entered WHILE : \r\n");
 
+<<<<<<< HEAD
     //f_motor_RPM_FL = FL_Hall_A.getRPM();
     //f_motor_RPM_FR = FR_Hall_A.getRPM();
     f_motor_RPM_RL = RL_Hall_A.getRPM();
@@ -558,6 +562,23 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("FL RPM : %f, FR RPM : %f, RL RPM : %f, RR RPM : %f\r\n", f_motor_RPM_FL, f_motor_RPM_FR, f_motor_RPM_RL, f_motor_RPM_RR);
 
 
+=======
+    
+    
+    AnalogIn Pedal_Sensor(PEDAL_SENSOR_PIN);
+    
+    PwmOut FL_Throttle_PWM(FL_OUTPUT_THROTTLE_PIN);
+    PwmOut FR_Throttle_PWM(FR_OUTPUT_THROTTLE_PIN);
+    PwmOut RL_Throttle_PWM(RL_OUTPUT_THROTTLE_PIN);
+    PwmOut RR_Throttle_PWM(RR_OUTPUT_THROTTLE_PIN);
+    
+    /*
+    MPU6050 mpu(MPU_SDA, MPU_SCL);                  // (sda, scl)
+    mpu.start();
+
+    pc.printf("mpu6050 started!\r\n");
+    */
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     f_vel_FL_ms = CvtRPM2Vel(f_motor_RPM_FL);
     f_vel_FR_ms = CvtRPM2Vel(f_motor_RPM_FR);
@@ -567,15 +588,38 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("FL vel : %f, FR vel : %f, RL vel : %f, RR vel : %f\r\n", f_vel_FL_ms, f_vel_FR_ms, f_vel_RL_ms, f_vel_RR_ms);
 
 
+<<<<<<< HEAD
 
     f_vehicle_vel_ms = CalAvgVel(f_vel_RR_ms, f_vel_RL_ms);
+=======
+        //pc.printf("entered WHILE : \r\n");
+
+
+        /*
+        f_motor_RPM_FL = FL_Hall_A.getRPM();
+        f_motor_RPM_FR = FR_Hall_A.getRPM();
+        f_motor_RPM_RL = RL_Hall_A.getRPM();
+        f_motor_RPM_RR = RR_Hall_A.getRPM();
+        
+        pc.printf("FL RPM : %f, FR RPM : %f, RL RPM : %f, RR RPM : %f\r\n", f_motor_RPM_FL, f_motor_RPM_FR, f_motor_RPM_RL, f_motor_RPM_RR);
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     //pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
 
 
+<<<<<<< HEAD
     //f_steering_sensor_value 받기!
     //pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
 
+=======
+        f_vel_FL_ms = CvtRPM2Vel(f_motor_RPM_FL);
+        f_vel_FR_ms = CvtRPM2Vel(f_motor_RPM_FR);
+        f_vel_RL_ms = CvtRPM2Vel(f_motor_RPM_RL);
+        f_vel_RR_ms = CvtRPM2Vel(f_motor_RPM_RR);
+        
+        pc.printf("FL vel : %f, FR vel : %f, RL vel : %f, RR vel : %f\r\n", f_vel_FL_ms, f_vel_FR_ms, f_vel_RL_ms, f_vel_RR_ms);
+        
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
 
@@ -583,20 +627,37 @@ void TorqueVectoringSystem::process_accel()
     
 
 
+<<<<<<< HEAD
     f_yawrate_input_deg = CalInputYawRate(f_vehicle_vel_ms, f_wheel_angle_deg);
 
     //pc.printf("target yaw rate : %f \t\t", f_yawrate_input_deg);
 
     
+=======
+        */
+
+    
+
+        //f_steering_sensor_value 받기!
+        //pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
 
+<<<<<<< HEAD
     f_yawrate_meas_degs = IMU_gy;               // 김치박스가 위로 세워짐!
     ////////////////////////////////////////////////////////////////// 
 
     f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
 
     //pc.printf("measured yaw rate : %f \r\n", f_yaw_rate_meas_filtered_degs);
+=======
+        //pc.printf("wheel angle : %f\r\n",f_wheel_angle_deg);
+        
+
+        /*
+        f_yawrate_input_deg = CalInputYawRate(f_vehicle_vel_ms, f_wheel_angle_deg);
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
 
     //f_pedal_sensor_value 받기!
@@ -614,6 +675,7 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("modified pedal value(0.0~1.0 value) : %f\r\n", f_pedal_modified_sensor_value);
     
 
+<<<<<<< HEAD
     // for MMS PWR
     i_PWR_percentage = (int)(f_pedal_modified_sensor_value * 100);
     //pc.printf("PWR percentage : %d\r\n", i_PWR_percentage);
@@ -624,12 +686,36 @@ void TorqueVectoringSystem::process_accel()
         f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
         f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
 
+=======
+        pc.printf("measured yaw rate : %f \r\n", f_yaw_rate_meas_filtered_degs);
+        */
+
+
+
+        //f_pedal_sensor_value 받기!
+        f_pedal_sensor_value = Pedal_Sensor.read();
+        //pc.printf("pedal raw value (0.0~1.0 value) : %f\r\n", f_pedal_sensor_value);
+
+        //Modify pedal sensor vlaue range(true sensor value min~max) ----> (0.0 ~ 1.0)
+        f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 1.0);
+        if (f_pedal_modified_sensor_value < 0.0)    f_pedal_modified_sensor_value = 0.0;
+        if (f_pedal_modified_sensor_value > 1.0)    f_pedal_modified_sensor_value = 1.0;
+        
+        //pc.printf("modified pedal value(0.0~1.0 value) : %f\r\n", f_pedal_modified_sensor_value);
+        
+
+        // for MMS PWR
+        i_PWR_percentage = (int)(f_pedal_modified_sensor_value * 100);
+        //pc.printf("PWR percentage : %d\r\n", i_PWR_percentage);
+        
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     //pc.printf("feedforward torque : \r\n");
     //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
     
 
 
+<<<<<<< HEAD
     PIDYawRate2Torque(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
         f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm,
         f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
@@ -639,6 +725,27 @@ void TorqueVectoringSystem::process_accel()
 
 
 
+=======
+        //only for baja
+        f_wheel_torque_FL_Nm = f_wheel_torque_FL_Nm * (ANALOG_RANGE / CONTROLLER_INPUT_VOLT_RANGE);
+        f_wheel_torque_FR_Nm = f_wheel_torque_FR_Nm * (ANALOG_RANGE / CONTROLLER_INPUT_VOLT_RANGE);
+        f_wheel_torque_RL_Nm = f_wheel_torque_RL_Nm * (ANALOG_RANGE / CONTROLLER_INPUT_VOLT_RANGE);
+        f_wheel_torque_RR_Nm = f_wheel_torque_RR_Nm * (ANALOG_RANGE / CONTROLLER_INPUT_VOLT_RANGE);
+
+
+        //pc.printf("feedforward throttle : \r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
+        
+
+        /*
+        PIDYawRate2Torque(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
+            f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm,
+            f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
+            
+        pc.printf("P controlled yaw rate output \r\n");
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
+        */
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     /* 나중에 썼으면 좋겠는 것들....
     //f_motor_current 받기!
@@ -667,12 +774,34 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_torque_FL_Nm, f_torque_FR_Nm, f_torque_RL_Nm, f_torque_RR_Nm);
 
 
+<<<<<<< HEAD
+=======
+        /* 나중에 썼으면 좋겠는 것들....
+        //f_motor_current 받기!
+        f_motor_current_FL_A = ReadCurrentSensor(FL_Current_OUT.read());
+        f_motor_current_FR_A = ReadCurrentSensor(FR_Current_OUT.read());
+        f_motor_current_RL_A = ReadCurrentSensor(RL_Current_OUT.read());
+        f_motor_current_RR_A = ReadCurrentSensor(RR_Current_OUT.read());
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
+        
+        
+        f_measured_torque_FL_Nm = CvtCurrent2Torque(f_motor_current_FL_A);
+        f_measured_torque_FR_Nm = CvtCurrent2Torque(f_motor_current_FR_A);
+        f_measured_torque_RL_Nm = CvtCurrent2Torque(f_motor_current_RL_A);
+
+        f_measured_torque_RR_Nm = CvtCurrent2Torque(f_motor_current_RR_A);
+        pc.printf("measured torque \r\n");
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_measured_torque_FL_Nm, f_measured_torque_FR_Nm, f_measured_torque_RL_Nm, f_measured_torque_RR_Nm);
+        
+        */
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     f_output_throttle_FL = Torque2Throttle(f_torque_FL_Nm);
     f_output_throttle_FR = Torque2Throttle(f_torque_FR_Nm);
     f_output_throttle_RL = Torque2Throttle(f_torque_RL_Nm);
     f_output_throttle_RR = Torque2Throttle(f_torque_RR_Nm);
 
+<<<<<<< HEAD
     //pc.printf("feedforward output throttle signal(voltage)\r\n");
     //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
 
@@ -688,19 +817,63 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("feedback output throttle signal(voltage)\r\n");
     //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);
 
+=======
+        //pc.printf("actual generating torque\r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_torque_FL_Nm, f_torque_FR_Nm, f_torque_RL_Nm, f_torque_RR_Nm);
+    
+        /*
+        f_output_throttle_FL = Torque2Throttle(f_torque_FL_Nm);
+        f_output_throttle_FR = Torque2Throttle(f_torque_FR_Nm);
+        f_output_throttle_RL = Torque2Throttle(f_torque_RL_Nm);
+        f_output_throttle_RR = Torque2Throttle(f_torque_RR_Nm);
+
+        pc.printf("feedforward output throttle signal(voltage)\r\n");
+        pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
+        */
+
+        f_output_throttle_FL = f_torque_FL_Nm;
+        f_output_throttle_FR = f_torque_FR_Nm;
+        f_output_throttle_RL = f_torque_RL_Nm;
+        f_output_throttle_RR = f_torque_RR_Nm;
+        
+        //pc.printf("feedforward output throttle signal(voltage)\r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
+        
+    
+        /*
+        f_PID_throttle_FL = PIDforThrottle(f_torque_FL_Nm, f_measured_torque_FL_Nm, FL);
+        f_PID_throttle_FR = PIDforThrottle(f_torque_FR_Nm, f_measured_torque_FR_Nm, FR);
+        f_PID_throttle_RL = PIDforThrottle(f_torque_RL_Nm, f_measured_torque_RL_Nm, RL);
+        f_PID_throttle_RR = PIDforThrottle(f_torque_RR_Nm, f_measured_torque_RR_Nm, RR);
+        */
+
+        //pc.printf("feedback output throttle signal(voltage)\r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
 ;
 
+<<<<<<< HEAD
     f_PWM_input_FL = SumFFandPID(f_output_throttle_FL, f_PID_throttle_FL);
     f_PWM_input_FR = SumFFandPID(f_output_throttle_FR, f_PID_throttle_FR);
     f_PWM_input_RL = SumFFandPID(f_output_throttle_RL, f_PID_throttle_RL);
     f_PWM_input_RR = SumFFandPID(f_output_throttle_RR, f_PID_throttle_RR);
+=======
+        //pc.printf(" raw throttle signal(PWM)\r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
 
     //pc.printf("raw throttle signal(PWM)\r\n");
     //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
 
+<<<<<<< HEAD
+=======
+        //pc.printf("modified PWM value : \r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+                    //trimmed_throttle_FL, trimmed_throttle_FR, trimmed_throttle_RL, trimmed_throttle_RR);
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 
     // 0.0 ~ 1.0의 값으로 설정된 PWM신호를, 컨트롤러 특성에 맞게 map함수 구현
     trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
@@ -742,4 +915,29 @@ void TorqueVectoringSystem::process_accel()
     //pc.printf("\r\n\n\n\n\n");
 
 
+<<<<<<< HEAD
+=======
+
+        //pc.printf("actual throttle signal(voltage)\r\n");
+        //pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+                    //FL_Throttle_PWM.read() * 3.3, FR_Throttle_PWM.read() * 3.3, RL_Throttle_PWM.read() * 3.3, RR_Throttle_PWM.read() * 3.3);
+
+            
+
+        /* for TVS on, off mode
+        if(TVS_SWITCH==TVS_OFF) {
+            f_pedal_sensor_value = Pedal_Sensor.read();
+            pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
+            //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
+            f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
+        
+            FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
+            FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
+            RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
+            RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
+        }
+        */
+        //pc.printf("\r\n\n\n\n\n");
+    }
+>>>>>>> b2613020d1387621d0b8ba6b455f304a1c218e40
 }
