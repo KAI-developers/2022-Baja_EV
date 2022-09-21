@@ -1,7 +1,29 @@
+/*
+         _____                              _   __     ___      _____    
+        |_   _|                            | | / /    / _ \    |_   _|   
+          | |    ___   __ _  _ __ ___      | |/ /    / /_\ \     | |     
+          | |   / _ \ / _` || '_ ` _ \     |    \    |  _  |     | |     
+          | |  |  __/| (_| || | | | | |    | |\  \ _ | | | | _  _| |_  _ 
+          \_/   \___| \__,_||_| |_| |_|    \_| \_/(_)\_| |_/(_) \___/ (_)
+
+ _____  _____  _____  _____  ______           _                 _____  _   _  ______                     _                                
+/ __  \|  _  |/ __  \/ __  \ | ___ \         (_)               |  ___|| | | | |  _  \                   | |                               
+`' / /'| |/' |`' / /'`' / /' | |_/ /  __ _    _   __ _  ______ | |__  | | | | | | | |  ___ __   __  ___ | |  ___   _ __    ___  _ __  ___ 
+  / /  |  /| |  / /    / /   | ___ \ / _` |  | | / _` ||______||  __| | | | | | | | | / _ \\ \ / / / _ \| | / _ \ | '_ \  / _ \| '__|/ __|
+./ /___\ |_/ /./ /___./ /___ | |_/ /| (_| |  | || (_| |        | |___ \ \_/ / | |/ / |  __/ \ V / |  __/| || (_) || |_) ||  __/| |   \__ \
+\_____/ \___/ \_____/\_____/ \____/  \__,_|  | | \__,_|        \____/  \___/  |___/   \___|  \_/   \___||_| \___/ | .__/  \___||_|   |___/
+                                            _/ |                                                                  | |                     
+                                           |__/                                                                   |_|                     
+
+    박성훈
+    이나영
+    김현우
+    전민경
+*/
+
+
 #include "TorqueVectoringSystem.h"
 
-
-//========================== Mbed to PC ROS Communication Thread =======================//
 //#include "CarState.h"
 #include "AutonomousMessage.h"
 #include <ros.h>
@@ -43,8 +65,13 @@ void AssiStatePublish(){
     /* */
 }
 
-
+/*
 void ros_thread(){
+
+    ros::NodeHandle nh;
+    kai_msgs::CarState kai_msg;
+    ros::Publisher carstate("carstate", &kai_msg);
+
     while(true){
         
         kai_msg.f_wheel_velocity_FL_ms=TVS.f_vel_FL_ms;
@@ -66,7 +93,7 @@ void ros_thread(){
         nh.spinOnce();
         wait_ms(125);
     }
-}
+} */
 
 
 
@@ -108,10 +135,8 @@ void CarDriving() {
     PinName RR_OUTPUT_THROTTLE_PIN = p24;
 
     
-    // mpu.start();
-    // pc_main.printf("mpu6050 started!\r\n");
-
-    
+    mpu.start();
+    // mpu 시작했는지 안했는지 표시해주는 함수 작성해야되는데 귀찮음
 
     TorqueVectoringSystem TVS(
         TVS_SWITCH_PIN, FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
