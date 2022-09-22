@@ -20,7 +20,7 @@
     making control signal for MD200 BLDC motor driver and precise position check(by encoder attached),
     to control steering actuator motor(BL9N from MD robot)
 
-    using MEGA2560, driving motor in external speed setting in driver
+    using MEGA2560 or mbed LPC1768, driving motor in external speed setting in driver
     with CHG switch OFF
 
     수업시간 프로그래밍 갬성으로
@@ -94,10 +94,13 @@ private:
     DigitalOut DIR;
     DigitalOut START_STOP;
     DigitalOut RUN_BRAKE;
-    PwmOut SPEED;
+    PwmOut SPEED;     // need to erase when using constant velocity
 
 public:
     MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_RUN_BRAKE, PinName PIN_START_STOP, PinName PIN_SPEED);
+
+    // for constant velocity control
+    // MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE, PinName PIN_SPEED)
    
     void setINT_SPEED(int mode);                          // EXTERNAL_SPEED or INTERNAL_SPEED
     
