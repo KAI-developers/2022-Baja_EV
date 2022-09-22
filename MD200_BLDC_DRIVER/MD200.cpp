@@ -1,3 +1,6 @@
+#ifndef MD200_H
+#define MD200_H
+
 #include "MD200.h"
 
 
@@ -83,7 +86,7 @@
 
 
 // for mbed lpc1768
-MD200::MD200(int pin_INT_SPEED, int pin_DIR, int pin_START_STOP, int pin_RUN_BRAKE)
+MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE)
     : INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), START_STOP(PIN_START_STOP), RUN_BRAKE(PIN_RUN_BRAKE)
 {
     INT_SPEED = INTERNAL_SPEED;
@@ -160,4 +163,4 @@ void MD200::runMotor(int dir, int action)
     RUN_BRAKE = action;
 }
 
-
+#endif  // MD200_H
