@@ -6,6 +6,7 @@
 #include "MD200.h"
 
 
+
 #define KP_POSITION                     30.0
 
 #define DEFAULT_VOLTAGE_INPUT           0.5
@@ -49,9 +50,9 @@ int main()
         motor_control_speed_RPM = KP_POSITION * error;                                   
 
         if (motor_control_speed_RPM >= 0.0)             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
-            driver.runMotor(CCW, RUN, min(abs(motor_control_speed_RPM), 3300.0));
+            driver.runMotor(CCW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
         else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
-            driver.runMotor(CW, RUN, min(abs(motor_control_speed_RPM), 3300.0));
+            driver.runMotor(CW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
         
 
         // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함

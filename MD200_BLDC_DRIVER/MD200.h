@@ -98,11 +98,11 @@ private:
 
 public:
     MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_RUN_BRAKE, PinName PIN_START_STOP, PinName PIN_SPEED);
-
+   
     void setINT_SPEED(int mode);                          // EXTERNAL_SPEED or INTERNAL_SPEED
     
     void enableBrake(int action);                         // BRAKE_OFF or BRAKE_ON (START/STOP 핀)
-    void runMotor(int dir, int action);                   // CW or CCW, RUN or STOP (BRK&PULSE_IN 핀)
+    void runMotor(int dir, int action);                   // CW or CCW, RUN or STOP (BRK&PULSE_IN 핀), for INTERNAL_SPEED setting
     void runMotor(int dir, int action, float speed_RPM);  // CW/CCW, RUN/STOP, input speed (SPEED 핀)
 
 
