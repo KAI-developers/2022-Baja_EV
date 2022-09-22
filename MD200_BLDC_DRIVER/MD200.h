@@ -26,8 +26,8 @@
     수업시간 프로그래밍 갬성으로
 */
 
-#ifndef MD200_H
-#define MD200_H
+// #ifndef MD200_H
+// #define MD200_H
 
 // #include "Arduino.h"
 
@@ -97,10 +97,10 @@ private:
 public:
     MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE);
 
-    void setINT_SPEED(int mode);
+    void setINT_SPEED(int mode);          // EXTERNAL_SPEED or INTERNAL_SPEED
     
-    void enableBrake(int action);
-    void runMotor(int dir, int action);
+    void enableBrake(int action);         // BRAKE_OFF or BRAKE_ON
+    void runMotor(int dir, int action);   // CW or CCW, RUN or STOP
 
 
     // 안 쓸 예정
@@ -108,4 +108,4 @@ public:
 };
 
 
-#endif  // MD200_H
+// #endif  // MD200_H33 
