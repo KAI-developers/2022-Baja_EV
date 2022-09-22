@@ -6,6 +6,10 @@
  float32 f_brake_sig
  float32 f_steering_sig
 
+ float32 f_car_speed
+ float32 f_filtered_yawrate
+
+
  uint8 c_autonomous_state
  # MANUAL_MODE             0  
  # AUTONOMOUS_READY        1
@@ -60,6 +64,8 @@ namespace KAI_msgs
         _float_data f_accel_sig;
         _float_data f_brake_sig;
         _float_data f_steering_sig;
+        _float_data f_car_speed;
+        _float_data f_filtered_yawrate;
 
         typedef int8_t _char_data;
         _char_data c_autonomous_state;
@@ -108,6 +114,20 @@ namespace KAI_msgs
             *(outbuffer + offset + 2) = (u_data.base >> (8 * 2)) & 0xFF;
             *(outbuffer + offset + 3) = (u_data.base >> (8 * 3)) & 0xFF;
             offset += sizeof(this->f_steering_sig);
+
+            u_data.real=this->f_car_speed;
+            *(outbuffer + offset + 0) = (u_data.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->f_car_speed);
+
+            u_data.real=this->f_filtered_yawrate;
+            *(outbuffer + offset + 0) = (u_data.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->f_filtered_yawrate);
 
 
 
@@ -165,6 +185,24 @@ namespace KAI_msgs
             u_data.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
             this->f_steering_sig = u_data.real;
             offset += sizeof(this->f_steering_sig);
+
+            
+            u_data.base=0;
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->f_car_speed = u_data.real;
+            offset += sizeof(this->f_car_speed);
+
+            
+            u_data.base=0;
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            u_data.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->f_filtered_yawrate = u_data.real;
+            offset += sizeof(this->f_filtered_yawrate);
 
 
 
