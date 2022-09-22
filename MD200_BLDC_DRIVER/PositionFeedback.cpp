@@ -1,11 +1,12 @@
 // 모터 CW 회전 시 차량 조향각 오른쪽으로 돌아감
+// https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=roboholic84&logNo=221044375678 참고함
 
 
 #include "mbed.h"
 #include "MD200.h"
 
 
-#define KP_POSITION     30.0
+#define KP_POSITION                     30.0
 
 #define DEFAULT_VOLTAGE_INPUT           0.5
 #define MAX_RESISTOR_ANGLE              300.0
@@ -14,6 +15,8 @@
 #define MAX_STEERING_BIG_ANGLE          67.238
 #define MAX_STEERING_SMALL_ANGLE        55.267
 #define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
+
+
 
 
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
@@ -28,7 +31,7 @@ int main()
     
     MD200 driver(p8, p9, p10, p11, p21);     // INT_SPEED, CW/CCW, RUN/BRAKE, START/STOP, SPEED(0~5V)
     driver.setINT_SPEED(EXTERNAL_SPEED);
-    driver.enableBrake(BRAKE_ON);
+    driver.enableBrake(BRAKE_ON);            // 모터가 구동을 안할 때 잠김
 
     AnalogIn handle_sensor(p15);             // 조향각 읽는 저항
     float target_steering_deg = 0.0;
@@ -45,10 +48,10 @@ int main()
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
         motor_control_speed_RPM = KP_POSITION * error;                                   
 
-        if (motor_control_speed_RPM >= 0.0)          // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
-            driver.runMotor(CCW, RUN, abs(motor_control_speed_RPM));
+        if (motor_control_speed_RPM >= 0.0)             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
+            driver.runMotor(CCW, RUN, min(abs(motor_control_speed_RPM), 3300.0));
         else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
-            driver.runMotor(CW, RUN, abs(motor_control_speed_RPM));
+            driver.runMotor(CW, RUN, min(abs(motor_control_speed_RPM), 3300.0));
         
 
         // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함
