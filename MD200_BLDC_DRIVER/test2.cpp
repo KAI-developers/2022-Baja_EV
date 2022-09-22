@@ -22,11 +22,11 @@ float Handle2WheelSteeringAngle(float f_handling_sensor_value);
 
 int main()
 {
-    Serial pc(USBTX, USBRX);
+    // Serial pc(USBTX, USBRX);
 
 
     
-    MD200 driver(p8, p9, p10, p11, p12, p21);     // INT_SPEED, CW/CCW, RUN/BRAKE, START/STOP, SPEED(0~5V)
+    MD200 driver(p8, p9, p10, p11, p21);     // INT_SPEED, CW/CCW, RUN/BRAKE, START/STOP, SPEED(0~5V)
     driver.setINT_SPEED(EXTERNAL_SPEED);
     driver.enableBrake(BRAKE_ON);
 
@@ -43,16 +43,17 @@ int main()
         // 여기 목표 각도 publish 필요
         measured_steering_deg = Handle2WheelSteeringAngle(handle_sensor.read());        // 왼쪽 조향이 양수 각
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
-        motor_control_speed = KP_POSITION * error;                                   
+        motor_control_speed_RPM = KP_POSITION * error;                                   
 
-        if (motor_control_quantity >= 0.0)          // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
+        if (motor_control_speed_RPM >= 0.0)          // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
             driver.runMotor(CCW, RUN, abs(motor_control_speed_RPM));
-        else if (motor_control_speed < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
+        else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
             driver.runMotor(CW, RUN, abs(motor_control_speed_RPM));
         
 
-        // pc.printf("target steering angle : %f \r\n", target_steering_deg);    // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함
+        // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함
         // pc.printf("measured steering angle : %f \r\n", measured_steering_deg);
+        // pc.printf("motor control speed(RPM) : %f \r\n", motor_control_speed_RPM);
     }
 
 }
