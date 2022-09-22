@@ -1,6 +1,3 @@
-#ifndef MD200_H
-#define MD200_H
-
 #include "MD200.h"
 
 
@@ -163,4 +160,3 @@ void MD200::runMotor(int dir, int action)
     RUN_BRAKE = action;
 }
 
-#endif  // MD200_H
