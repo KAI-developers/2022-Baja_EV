@@ -26,33 +26,73 @@
     수업시간 프로그래밍 갬성으로
 */
 
-#include "Arduino.h"
+// #include "Arduino.h"
+
+
+// #define PPR                 16384
+
+// #define EXTERNAL_SPEED      HIGH
+// #define INTERNAL_SPEED      LOW
+
+// #define CCW                 HIGH
+// #define CW                  LOW
+
+// #define BRAKE_OFF           HIGH
+// #define BRAKE_ON            LOW
+
+// #define STOP                HIGH
+// #define RUN                 LOW
+
+
+// for mbed mega2560
+// class MD200 {
+// private:
+//     int pin_INT_SPEED_;
+//     int pin_DIR_;
+//     int pin_START_STOP_;
+//     int pin_RUN_BRAKE_;
+
+// public:
+//     MD200(int pin_INT_SPEED, int pin_DIR, int pin_START_STOP, int pin_RUN_BRAKE);
+
+//     void setINT_SPEED(int mode);
+    
+//     void enableBrake(int action);
+//     void runMotor(int dir, int action);
+
+
+//     // 안 쓸 예정
+//     void setDIR(int dir);
+// };
+
+
+#include "mbed.h"
 
 
 #define PPR                 16384
 
-#define EXTERNAL_SPEED      HIGH
-#define INTERNAL_SPEED      LOW
+#define EXTERNAL_SPEED      1
+#define INTERNAL_SPEED      0
 
-#define CCW                 HIGH
-#define CW                  LOW
+#define CCW                 1
+#define CW                  0
 
-#define BRAKE_OFF           HIGH
-#define BRAKE_ON            LOW
+#define BRAKE_OFF           1
+#define BRAKE_ON            0
 
-#define STOP                HIGH
-#define RUN                 LOW
+#define STOP                1
+#define RUN                 0
 
 
 class MD200 {
 private:
-    int pin_INT_SPEED_;
-    int pin_DIR_;
-    int pin_START_STOP_;
-    int pin_RUN_BRAKE_;
+    DigitalOut INT_SPEED;
+    DigitalOut DIR;
+    DigitalOut START_STOP;
+    DigitalOut RUN_BRAKE;
 
 public:
-    MD200(int pin_INT_SPEED, int pin_DIR, int pin_START_STOP, int pin_RUN_BRAKE);
+    MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE);
 
     void setINT_SPEED(int mode);
     
@@ -63,4 +103,3 @@ public:
     // 안 쓸 예정
     void setDIR(int dir);
 };
-
