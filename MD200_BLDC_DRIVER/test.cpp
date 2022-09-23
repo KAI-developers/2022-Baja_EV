@@ -1,6 +1,8 @@
 #include "mbed.h"
 #include "MD200.h"
 
+// need to edit MD200.h
+
 int main()
 {
     Serial pc(USBTX, USBRX);

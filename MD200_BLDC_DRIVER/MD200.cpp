@@ -82,10 +82,13 @@
 // }
 
 
+
+
 // for mbed lpc1768
+
+// for controlling velocity
 MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE, PinName PIN_SPEED)
-    :   INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), RUN_BRAKE(PIN_RUN_BRAKE),
-        START_STOP(PIN_START_STOP), SPEED(PIN_SPEED)
+    :   INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), RUN_BRAKE(PIN_RUN_BRAKE), START_STOP(PIN_START_STOP), SPEED(PIN_SPEED)
 {
     INT_SPEED = INTERNAL_SPEED;
     DIR = CW;
@@ -96,6 +99,17 @@ MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, Pin
     SPEED = 0.0;
 }
 
+
+/*
+// for using constant velocity
+MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE, PinName PIN_SPEED)
+    :   INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), RUN_BRAKE(PIN_RUN_BRAKE), START_STOP(PIN_START_STOP)
+{
+    INT_SPEED = INTERNAL_SPEED;
+    DIR = CW;
+    START_STOP = BRAKE_ON;
+    RUN_BRAKE = STOP;
+}*/
 
 
 /*
@@ -144,6 +158,7 @@ void MD200::enableBrake(int action)
 
 
 /*
+for INTERNAL_SPEED mode or using external volume assembled
 dir
     - CW (clockwise)
     - CCW (counter clockwise)
