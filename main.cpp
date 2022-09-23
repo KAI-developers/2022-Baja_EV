@@ -38,10 +38,27 @@
 
 
 
+
+
+// accel값 subscribe하는 함수 넣어야 함
+// 근데 thread를 publish하는 함수에 묶어서, 
+// 한 스레드는 ros 관련 pub/sub, 다른 스레드는 구동 함수로 구성하면 좋을 것 같음
+float global_subscribed_accel_value = 0.0;
+char global_ASMS_state = 0;
+char global_estop_trig = 0;
+char global_auto_stop_trig = 0;
+/*
+void AccelValueSubscribe()
+{
+    //accel값 초기화
+}
+*/
+
+
+
 void AssiStatePublish(){
 
     /* for testing ros communication with arduino nano */
-
 
     KAI_msgs::AutonomousSignal auto_msg;
     ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
@@ -52,6 +69,7 @@ void AssiStatePublish(){
     
 
 
+    /*
     // just for test
     AnalogIn resistor(p19);
     float resistor_value = 0.0;
@@ -71,7 +89,39 @@ void AssiStatePublish(){
         nh.spinOnce();
         wait_ms(1);
     } 
-    /* for testing ros communication with arduino nano */
+     for testing ros communication with arduino nano */
+
+
+
+    // ASSI state publish
+    while(1)
+    {
+        
+
+        if(global_ASMS_state)
+            auto_msg.c_autonomous_state = MANUAL_MODE;
+
+
+        else
+        {
+            if (c.auto_stop_trig == STOPTRIGGER_END) {
+                auto_msg.c_autonomous_state = AUTONOMOUS_END;
+                global_auto_stop_trig = STOPTRIGGER_END;
+            }
+
+            else if (global_estop_trig == ESTOP_STOP) {
+                auto_msg.c_autonomous_state = AUTONOMOUS_EMERGENCY;
+            }
+            else if (global_estop_trig == ESTOP_RUN) {
+                auto_msg.c_autonomous_state = AUTONOMOUS_DRIVING;    
+            }
+        }
+
+        autonomous_message.publish( &auto_msg );
+        nh.spinOnce();
+        wait_ms(1);
+    }
+    
 }
 
 /*
@@ -156,11 +206,42 @@ void CarDriving() {
     TVS.mpu.start();
 
 
-    while(1) {
-        TVS.process_accel();
-  
-    }
+    DigitalIn ASMS(p11);
+    // 임시 estop 스위치
+    DigitalIn estop_temporary(p30);
     
+
+    while(1)
+    {
+        if (ASMS) {         // 수동주행
+            global_ASMS_state = ASMS;
+            TVS.process_accel();
+        }
+
+        else                // 자율주행
+        {
+            global_ASMS_state = ASMS;
+
+            if (global_auto_stop_trig == STOPTRIGGER_RUNNING)
+            {
+                if (estop_temporary) {
+                    TVS.process_accel(subscribed_accel_value);
+                    global_estop_trig = ESTOP_RUN;
+                }
+                    
+                else {
+                    TVS.process_accel(0.0);
+                    global_estop_trig = ESTOP_STOP;
+                }
+            }
+            else if (global_auto_stop_trig == STOPTRIGGER_END)
+            {
+                TVS.process_accel(0.0);
+                
+            }
+        }
+    }
+
 }
 //========================== Torque Vectoring System Thread =======================//
 
