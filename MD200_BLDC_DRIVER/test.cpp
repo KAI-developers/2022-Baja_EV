@@ -24,7 +24,6 @@ int main()
         
         if(p15value > 0.5)      // run motor by potentiometer
         {
-            driver.enableBrake(BRAKE_ON);
             if(p16value > 0.5)
             {
                 driver.runMotor(CW, RUN);
@@ -41,7 +40,6 @@ int main()
         {
             pc.printf("STOP \r\n");
             driver.runMotor(CW, STOP);
-            driver.enableBrake(BRAKE_ON);
         }
     }
 

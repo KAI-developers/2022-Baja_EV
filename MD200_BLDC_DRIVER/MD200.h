@@ -17,10 +17,10 @@
 
     박성훈 designed from Konkuk Univ, Team K.A.I. 2022 Baja-EV team Develop Part
 
-    making control signal for MD200 BLCD motor driver and precise position check(by encoder attached),
+    making control signal for MD200 BLDC motor driver and precise position check(by encoder attached),
     to control steering actuator motor(BL9N from MD robot)
 
-    using MEGA2560, driving motor in constant speed(internal speed setting in driver)
+    using MEGA2560, driving motor in external speed setting in driver
     with CHG switch OFF
 
     수업시간 프로그래밍 갬성으로
@@ -86,6 +86,7 @@
 #define STOP                1
 #define RUN                 0
 
+#define MAX_RPM             3300.0  // MD200 최대 5000RPM으로 설정 시의 값
 
 class MD200 {
 private:
@@ -93,14 +94,16 @@ private:
     DigitalOut DIR;
     DigitalOut START_STOP;
     DigitalOut RUN_BRAKE;
+    PwmOut SPEED;
 
 public:
-    MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE);
+    MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_RUN_BRAKE, PinName PIN_START_STOP, PinName PIN_SPEED);
 
-    void setINT_SPEED(int mode);          // EXTERNAL_SPEED or INTERNAL_SPEED
+    void setINT_SPEED(int mode);                      // EXTERNAL_SPEED or INTERNAL_SPEED
     
-    void enableBrake(int action);         // BRAKE_OFF or BRAKE_ON
-    void runMotor(int dir, int action);   // CW or CCW, RUN or STOP
+    void enableBrake(int action);                     // BRAKE_OFF or BRAKE_ON
+    void runMotor(int dir, int action);               // CW or CCW, RUN or STOP
+    void runMotor(int dir, int action, float speed_RPM);  // CW/CCW, RUN/STOP, input speed
 
 
     // 안 쓸 예정

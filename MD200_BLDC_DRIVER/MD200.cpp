@@ -83,13 +83,17 @@
 
 
 // for mbed lpc1768
-MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE)
-    : INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), START_STOP(PIN_START_STOP), RUN_BRAKE(PIN_RUN_BRAKE)
+MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE, PinName PIN_SPEED)
+    :   INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), RUN_BRAKE(PIN_RUN_BRAKE),
+        START_STOP(PIN_START_STOP), SPEED(PIN_SPEED)
 {
     INT_SPEED = INTERNAL_SPEED;
     DIR = CW;
     START_STOP = BRAKE_ON;
     RUN_BRAKE = STOP;
+
+    SPEED.period_us(25);
+    SPEED = 0.0;
 }
 
 
@@ -158,5 +162,36 @@ void MD200::runMotor(int dir, int action)
 
     DIR = dir;
     RUN_BRAKE = action;
+}
+
+
+/*
+모터 최대 RPM 5000으로 설정한다고 가정함.
+mbed 구동전압 3V3의 한계로 최대 3300RPM 출력 가능
+
+map함수 이용
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+in_min : 0
+in_max : 3300RPM
+out_min : 0
+out_max : 1.0
+*/
+void MD200::runMotor(int dir, int action, float speed_RPM)
+{
+    // digitalWrite(pin_DIR_, dir)
+    // digitalWrite(pin_RUN_BRAKE_, action);
+    float SPEED_pwm = 0.0;
+
+    DIR = dir;
+    RUN_BRAKE = action;
+    
+    // 목표 RPM만큼 SPEED핀에 인가함
+    SPEED_pwm = (speed_RPM - 0.0) * (1.0 - 0.0) / (MAX_RPM - 0.0) + 0.0;
+
+    if (SPEED_pwm < 0.0)                            SPEED = 0.0;
+    else if (SPEED_pwm >= 0.0 && SPEED_pwm < 1.0)   SPEED = SPEED_pwm;
+    else                                            SPEED = 1.0;
 }
 
