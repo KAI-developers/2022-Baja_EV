@@ -40,11 +40,11 @@
 
 
 // for c_autonomous_state
-#define MANUAL_MODE             0
-#define AUTONOMOUS_READY        1
-#define AUTONOMOUS_DRIVING      2
-#define AUTONOMOUS_END          3
-#define AUTONOMOUS_EMERGENCY    4
+#define ASSI_MANUAL_MODE             0
+#define ASSI_AUTONOMOUS_READY        1
+#define ASSI_AUTONOMOUS_DRIVING      2
+#define ASSI_AUTONOMOUS_END          3
+#define ASSI_AUTONOMOUS_EMERGENCY    4
 
 // for c_estop_trig
 #define ESTOP_STOP              0
@@ -78,10 +78,9 @@ namespace KAI_msgs
             f_brake_sig(0), 
             f_steering_sig(0), 
             c_autonomous_state(0),        // default MANUAL_MODE
-            c_estop_trig(0),                // default STOP_MODE
-            c_auto_stop_trig(0)       // default autonomous running
-            {
-            }
+            c_estop_trig(0),              // default STOP_MODE
+            c_auto_stop_trig(0)           // default autonomous running
+            { }
 
 
 

@@ -37,6 +37,18 @@
 #include <ros.h>
 
 
+// constant for ASMS switch (p11)
+#define ASMS_MANUAL_MODE        1
+#define ASMS_AUTONOMOUS_MODE    0
+
+
+char global_autonomous_state = ASSI_MANUAL_MODE;
+
+float global_accel_value = 0.0;
+
+
+
+
 
 void AssiStatePublish(){
 
@@ -44,18 +56,26 @@ void AssiStatePublish(){
 
 
     KAI_msgs::AutonomousSignal auto_msg;
-    ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
+    ros::Publisher autonomous_message("assi_state", &auto_msg);
 
     ros::NodeHandle nh;
     nh.initNode();
     nh.advertise(autonomous_message);
     
+    while(1) 
+    {
+        auto_msg.c_autonomous_state = global_autonomous_state;
+
+        autonomous_message.publish ( &auto_msg );
+        nh.spinOnce();
+        wait_ms(50);
+    }
 
 
+    /*
     // just for test
     AnalogIn resistor(p19);
     float resistor_value = 0.0;
-
 
     while(true){
 
@@ -69,9 +89,10 @@ void AssiStatePublish(){
         
         autonomous_message.publish( &auto_msg );
         nh.spinOnce();
-        wait_ms(1);
+        wait_ms(50);
     } 
-    /* for testing ros communication with arduino nano */
+    //for testing ros communication with arduino nano
+    */
 }
 
 /*
@@ -144,8 +165,7 @@ void CarDriving() {
     PinName RR_OUTPUT_THROTTLE_PIN = p24;
 
     
-    
-    // mpu 시작했는지 안했는지 표시해주는 함수 작성해야되는데 귀찮음
+
 
     TorqueVectoringSystem TVS(
         TVS_SWITCH_PIN, FL_HALL_PIN, FR_HALL_PIN, RL_HALL_PIN, RR_HALL_PIN, 
@@ -153,6 +173,7 @@ void CarDriving() {
         FL_CURRENT_SENSOR_PIN, FR_CURRENT_SENSOR_PIN, RL_CURRENT_SENSOR_PIN, RR_CURRENT_SENSOR_PIN,
         FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN
     );
+    // mpu 시작했는지 안했는지 표시해주는 함수 작성해야되는데 귀찮음
     TVS.mpu.start();
 
 
@@ -168,10 +189,40 @@ void CarDriving() {
 
 int main(){
 
-    // Thread thread_ROS;
-    // thread_ROS.start(AssiStatePublish);
+    DigitalIn b_estop(p12);
+    DigitalIn b_ASMS(p11);
 
-    CarDriving();
+
+    Thread thread_ROS, thread_accel;
+
+    thread_ROS.start(AssiStatePublish);
+
+    thread_accel.start(CarDriving);
+
+
+    while(1)
+    {
+        if (b_ASMS == ASMS_MANUAL_MODE)     
+            global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
+
+        else                                                        // AS 풀려있음 (자율주행모드)
+        {
+            if (b_estop == ESTOP_STOP)                                          // 릴레이가 mbed로 LOW 인가됨
+            {
+                if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
+                    global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
+                }
+                else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
+                    global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
+            }
+
+            else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
+            {
+                if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
+                    global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
+            }
+        }
+    }
 
     return 0;
 }
