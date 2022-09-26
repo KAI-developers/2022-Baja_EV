@@ -32,9 +32,12 @@
 
 #include "TorqueVectoringSystem.h"
 
+#include "ros.h"
+
 //#include "CarState.h"
 #include "AutonomousMessage.h"
-#include <ros.h>
+#include "std_msgs/Float32.h"
+//#include <iostream>
 
 
 // constant for ASMS switch (p11)
@@ -43,14 +46,66 @@
 
 
 char global_autonomous_state = ASSI_MANUAL_MODE;
-
 float global_accel_value = 0.0;
 
 
+void ROSPubSub();
+void CarDriving();
 
 
 
-void AssiStatePublish(){
+
+int main(int argc, char **argv){
+
+    DigitalIn b_estop(p12);
+    DigitalIn b_ASMS(p11);
+
+
+    Thread thread_ROS, thread_accel;
+
+    thread_ROS.start(ROSPubSub);
+
+    thread_accel.start(CarDriving);
+
+
+    while(1)
+    {
+        if (b_ASMS == ASMS_MANUAL_MODE)     
+            global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
+
+        else                                                        // AS 풀려있음 (자율주행모드)
+        {
+            if (b_estop == ESTOP_STOP)                                          // 릴레이가 mbed로 LOW 인가됨
+            {
+                if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
+                    global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
+                }
+                else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
+                    global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
+            }
+
+            else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
+            {
+                if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
+                    global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+void throttleCallback(const KAI_msgs::AutonomousSignal& msg)
+{
+    global_accel_value = msg.f_accel_sig;
+    // nh.loginfo("throttle \r\n");
+}
+
+
+void ROSPubSub(){
 
     /* for testing ros communication with arduino nano */
 
@@ -58,15 +113,20 @@ void AssiStatePublish(){
     KAI_msgs::AutonomousSignal auto_msg;
     ros::Publisher autonomous_message("assi_state", &auto_msg);
 
+    ros::Subscriber<KAI_msgs::AutonomousSignal> sub_throttle("바꿔야함 ㅇㅇ", &throttleCallback);
+
     ros::NodeHandle nh;
     nh.initNode();
     nh.advertise(autonomous_message);
-    
+    nh.subscribe(sub_throttle);
+
+
     while(1) 
     {
+        // publishing part
         auto_msg.c_autonomous_state = global_autonomous_state;
-
         autonomous_message.publish ( &auto_msg );
+  
         nh.spinOnce();
         wait_ms(50);
     }
@@ -178,51 +238,19 @@ void CarDriving() {
 
 
     while(1) {
-        TVS.process_accel();
-  
+        if (global_autonomous_state == ASSI_MANUAL_MODE) {
+            TVS.process_accel();
+        }
+        else if (   global_autonomous_state == ASSI_AUTONOMOUS_READY ||
+                    global_autonomous_state == ASSI_AUTONOMOUS_EMERGENCY ||
+                    global_autonomous_state == ASSI_AUTONOMOUS_END) {
+            TVS.process_accel(0.);
+        }
+        else if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {
+            TVS.process_accel(global_accel_value);
+        }
     }
-    
 }
 //========================== Torque Vectoring System Thread =======================//
 
 
-
-int main(){
-
-    DigitalIn b_estop(p12);
-    DigitalIn b_ASMS(p11);
-
-
-    Thread thread_ROS, thread_accel;
-
-    thread_ROS.start(AssiStatePublish);
-
-    thread_accel.start(CarDriving);
-
-
-    while(1)
-    {
-        if (b_ASMS == ASMS_MANUAL_MODE)     
-            global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
-
-        else                                                        // AS 풀려있음 (자율주행모드)
-        {
-            if (b_estop == ESTOP_STOP)                                          // 릴레이가 mbed로 LOW 인가됨
-            {
-                if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
-                    global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
-                }
-                else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
-                    global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
-            }
-
-            else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
-            {
-                if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
-                    global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
-            }
-        }
-    }
-
-    return 0;
-}

@@ -17,7 +17,7 @@
  # AUTONOMOUS_END          3
  # AUTONOMOUS_EMERGENCY    4
 
-
+// 이제 안 쓸 것 같음
  uint8 c_estop_trig
  # ESTOP_STOP              0
  # ESTOP_RUN               1

@@ -747,6 +747,7 @@ void TorqueVectoringSystem::process_accel()
 }
 
 
+// for autonomous driving
 void TorqueVectoringSystem::process_accel(float accel_value)        // accel value 0.0 ~ 1.0
 {
     // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
@@ -829,6 +830,7 @@ void TorqueVectoringSystem::process_accel(float accel_value)        // accel val
 
     // publish한 accel값을 구동에 이용
     f_pedal_modified_sensor_value = accel_value;
+    if (f_pedal_modified_sensor_value < 0.0)    f_pedal_modified_sensor_value = 0.0;
 
     // for MMS PWR
     i_PWR_percentage = (int)(f_pedal_modified_sensor_value * 100);
