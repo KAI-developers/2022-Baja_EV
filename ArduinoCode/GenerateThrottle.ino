@@ -34,7 +34,7 @@ void setup() {
     pinMode(RL_PWM_PIN, OUTPUT);
     pinMode(RR_PWM_PIN, OUTPUT);
 
-    delay(3000);            // 왜 초반에 스로틀이 잡히는거지...???
+    delay(5000);            // 왜 초반에 스로틀이 잡히는거지...???
 }
 
 
