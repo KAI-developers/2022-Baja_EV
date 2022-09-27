@@ -60,6 +60,7 @@ void loop() {
     i_PWM_RR = (int)f_PWM_RR * 5 / 3.3;
     */
 
+    // 0~1023의 아날로그읽는 범위(0~5V)를 pwm 출력..!
     i_PWM_FL = map(analogRead(FL_READ_PIN), 0, 1023, 0, 255);
     i_PWM_FR = map(analogRead(FR_READ_PIN), 0, 1023, 0, 255);
     i_PWM_RL = map(analogRead(RL_READ_PIN), 0, 1023, 0, 255);
