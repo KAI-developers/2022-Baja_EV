@@ -33,73 +33,49 @@ void setup() {
     pinMode(FR_PWM_PIN, OUTPUT);
     pinMode(RL_PWM_PIN, OUTPUT);
     pinMode(RR_PWM_PIN, OUTPUT);
+
+    delay(3000);            // 왜 초반에 스로틀이 잡히는거지...???
 }
 
 
 
 void loop() {
+    float f_PWM_FL, f_PWM_FR, f_PWM_RL, f_PWM_RR;
 
-  
-    float f_PWM_FL = 0;
-    float f_PWM_FR = 0;
-    float f_PWM_RL = 0;
-    float f_PWM_RR = 0;
-
-    int i_PWM_FL = 0;
-    int i_PWM_FR = 0;
-    int i_PWM_RL = 0;
-    int i_PWM_RR = 0;
-
+    int i_PWM_FL, i_PWM_FR, i_PWM_RL, i_PWM_RR;
 
 
     /*
-    FL_V = (float)analogRead(FL_READ_PIN) * 5.0 / 1023.0;
-    FR_V = (float)analogRead(FR_READ_PIN) * 5.0 / 1023.0;
-    RL_V = (float)analogRead(RL_READ_PIN) * 5.0 / 1023.0;
-    RR_V = (float)analogRead(RR_READ_PIN) * 5.0 / 1023.0;
-
-
-    Serial.print(FL_V);
-    Serial.print(',');
-
-    Serial.print(FR_V);
-    Serial.print(',');
-
-    Serial.print(RL_V);
-    Serial.print(',');
-
-    Serial.println(RR_V);
-    */
-
-
+    // analogread range : (int) 0 ~ 1023
     f_PWM_FL = (float)analogRead(FL_READ_PIN) * 255 / 1023;
     f_PWM_FR = (float)analogRead(FR_READ_PIN) * 255 / 1023;
     f_PWM_RL = (float)analogRead(RL_READ_PIN) * 255 / 1023;
     f_PWM_RR = (float)analogRead(RR_READ_PIN) * 255 / 1023;
 
     // int형으로 바꿔주면서, 3.3V -> 5V 출력에 맞게 곱셈 함
+    // pwmout range : (int) 0 ~ 255
     i_PWM_FL = (int)f_PWM_FL * 5 / 3.3;
     i_PWM_FR = (int)f_PWM_FR * 5 / 3.3;
     i_PWM_RL = (int)f_PWM_RL * 5 / 3.3;
     i_PWM_RR = (int)f_PWM_RR * 5 / 3.3;
+    */
 
+    i_PWM_FL = map(analogRead(FL_READ_PIN), 0, 1023, 0, 255);
+    i_PWM_FR = map(analogRead(FR_READ_PIN), 0, 1023, 0, 255);
+    i_PWM_RL = map(analogRead(RL_READ_PIN), 0, 1023, 0, 255);
+    i_PWM_RR = map(analogRead(RR_READ_PIN), 0, 1023, 0, 255);
+    
+
+    // for safety
     if(i_PWM_FL >= 209)   i_PWM_FL = 209;
     if(i_PWM_FR >= 209)   i_PWM_FR = 209;
+    if(i_PWM_RL >= 209)   i_PWM_RL = 209;
+    if(i_PWM_RR >= 209)   i_PWM_RR = 209;
 
     if(i_PWM_FL <= 25)    i_PWM_FL = 25;
     if(i_PWM_FR <= 25)    i_PWM_FR = 25;
-
-
-    //  Serial.print(i_PWM_FL);
-    //  Serial.print(',');
-    //  
-    //  Serial.print(i_PWM_FR);
-    //  Serial.println(',');
-
-    //  Serial.print(i_PWM_RL);
-    //  Serial.print(',');
-    //  
-    //  Serial.println(i_PWM_RR);
+    if(i_PWM_RL <= 25)    i_PWM_RL = 25;
+    if(i_PWM_RR <= 25)    i_PWM_RR = 25;
 
 
     analogWrite(FL_PWM_PIN, i_PWM_FL);
