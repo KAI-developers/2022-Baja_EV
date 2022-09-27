@@ -5,6 +5,9 @@
 #include "mbed.h"
 #include "MD200.h"
 
+#include "ros.h"
+#include "std_msgs/Float32.h"
+#include <iostream>
 
 
 #define KP_POSITION                     30.0
@@ -18,18 +21,29 @@
 #define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
 
 
-// ROS publisher code needed!
+
+float global_steering_value = 0.;
+float global_brake_value = 0.;
+
 
 
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
+void steeringCallback(const std_msgs::Float32& msg);
 
 
 
 int main()
 {
     // Serial pc(USBTX, USBRX);
+    ros::NodeHandle nh;
+    ros::Subscriber<std_msgs::Float32> sub_steering("steering_control_command", &steeringCallback);
+    // ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
+    nh.initNode();
+    nh.subscribe(sub_steering);
+    // nh.subscribe(sub_brake);
 
 
+    
     MD200 driver(p8, p9, p10, p11, p21);     // INT_SPEED, CW/CCW, RUN/BRAKE, START/STOP, SPEED(0~5V)
     driver.setINT_SPEED(EXTERNAL_SPEED);
     driver.enableBrake(BRAKE_ON);            // 모터가 구동을 안할 때 잠김
@@ -44,7 +58,7 @@ int main()
     
     while(1)
     {
-        // 여기 목표 각도 publish 필요
+        target_steering_deg = global_steering_value;
         measured_steering_deg = Handle2WheelSteeringAngle(handle_sensor.read());        // 왼쪽 조향이 양수 각
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
         motor_control_speed_RPM = KP_POSITION * error;                                   
@@ -58,6 +72,8 @@ int main()
         // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함
         // pc.printf("measured steering angle : %f \r\n", measured_steering_deg);
         // pc.printf("motor control speed(RPM) : %f \r\n", motor_control_speed_RPM);
+
+        nh.spinOnce();
     }
 
 }
@@ -82,3 +98,12 @@ float Handle2WheelSteeringAngle(float f_handling_sensor_value)
 
     return handle_angle;
 }
+
+
+
+void steeringCallback(const std_msgs::Float32& msg)
+{
+    global_steering_value = msg.data;
+    //nh.loginfo("steering \r\n");
+}
+
