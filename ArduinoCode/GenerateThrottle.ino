@@ -68,16 +68,18 @@ void loop() {
     
 
     // for safety
-    if(i_PWM_FL >= 209)   i_PWM_FL = 209;
-    if(i_PWM_FR >= 209)   i_PWM_FR = 209;
-    if(i_PWM_RL >= 209)   i_PWM_RL = 209;
-    if(i_PWM_RR >= 209)   i_PWM_RR = 209;
+    if(i_PWM_FL >= 209)         i_PWM_FL = 209;
+    else if(i_PWM_FL <= 25)     i_PWM_FL = 25;
 
-    if(i_PWM_FL <= 25)    i_PWM_FL = 25;
-    if(i_PWM_FR <= 25)    i_PWM_FR = 25;
-    if(i_PWM_RL <= 25)    i_PWM_RL = 25;
-    if(i_PWM_RR <= 25)    i_PWM_RR = 25;
+    if(i_PWM_FL >= 209)         i_PWM_FL = 209;
+    else if(i_PWM_FL <= 25)     i_PWM_FL = 25;
 
+    if(i_PWM_FL >= 209)         i_PWM_FL = 209;
+    else if(i_PWM_FL <= 25)     i_PWM_FL = 25;
+
+    if(i_PWM_FL >= 209)         i_PWM_FL = 209;
+    else if(i_PWM_FL <= 25)     i_PWM_FL = 25;
+    
 
     analogWrite(FL_PWM_PIN, i_PWM_FL);
     analogWrite(FR_PWM_PIN, i_PWM_FR);
