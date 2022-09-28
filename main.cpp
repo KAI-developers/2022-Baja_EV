@@ -98,9 +98,9 @@ int main(int argc, char **argv){
 
 
 
-void throttleCallback(const KAI_msgs::AutonomousSignal& msg)
+void throttleCallback(const std_msgs::Float32& msg)
 {
-    global_accel_value = msg.f_accel_sig;
+    global_accel_value = msg.data;
     // nh.loginfo("throttle \r\n");
 }
 
@@ -113,7 +113,7 @@ void ROSPubSub(){
     KAI_msgs::AutonomousSignal auto_msg;
     ros::Publisher autonomous_message("assi_state", &auto_msg);
 
-    ros::Subscriber<KAI_msgs::AutonomousSignal> sub_throttle("바꿔야함 ㅇㅇ", &throttleCallback);
+    ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
 
     ros::NodeHandle nh;
     nh.initNode();
