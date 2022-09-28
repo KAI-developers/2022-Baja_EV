@@ -34,7 +34,11 @@ void setup() {
     pinMode(RL_PWM_PIN, OUTPUT);
     pinMode(RR_PWM_PIN, OUTPUT);
 
+    pinMode(LED_BUILTIN, OUTPUT);
+    
+    digitalWrite(LED_BUILTIN, LOW);
     delay(5000);            // 왜 초반에 스로틀이 잡히는거지...???
+    digitalWrite(LED_BUILTIN, HIGH);
 }
 
 
@@ -45,7 +49,7 @@ void loop() {
     int i_PWM_FL, i_PWM_FR, i_PWM_RL, i_PWM_RR;
 
 
-    /*
+    
     // analogread range : (int) 0 ~ 1023
     f_PWM_FL = (float)analogRead(FL_READ_PIN) * 255 / 1023;
     f_PWM_FR = (float)analogRead(FR_READ_PIN) * 255 / 1023;
@@ -58,14 +62,15 @@ void loop() {
     i_PWM_FR = (int)f_PWM_FR * 5 / 3.3;
     i_PWM_RL = (int)f_PWM_RL * 5 / 3.3;
     i_PWM_RR = (int)f_PWM_RR * 5 / 3.3;
-    */
+    
 
+    /*
     // 0~1023의 아날로그읽는 범위(0~5V)를 pwm 출력..!
     i_PWM_FL = map(analogRead(FL_READ_PIN), 0, 1023, 0, 255);
     i_PWM_FR = map(analogRead(FR_READ_PIN), 0, 1023, 0, 255);
     i_PWM_RL = map(analogRead(RL_READ_PIN), 0, 1023, 0, 255);
     i_PWM_RR = map(analogRead(RR_READ_PIN), 0, 1023, 0, 255);
-    
+    */
 
     // for safety
     if(i_PWM_FL >= 209)         i_PWM_FL = 209;
