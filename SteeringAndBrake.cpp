@@ -29,6 +29,7 @@ float global_brake_value = 0.;
 
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
 void steeringCallback(const std_msgs::Float32& msg);
+void brakeCallback(const std_msgs::Float32& msg);
 
 
 
@@ -37,10 +38,10 @@ int main()
     // Serial pc(USBTX, USBRX);
     ros::NodeHandle nh;
     ros::Subscriber<std_msgs::Float32> sub_steering("steering_control_command", &steeringCallback);
-    // ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
+    ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
     nh.initNode();
     nh.subscribe(sub_steering);
-    // nh.subscribe(sub_brake);
+    nh.subscribe(sub_brake);
 
 
     
@@ -105,5 +106,10 @@ void steeringCallback(const std_msgs::Float32& msg)
 {
     global_steering_value = msg.data;
     //nh.loginfo("steering \r\n");
+}
+
+void brakeCallback(const std_msgs::Float32& msg)
+{
+    ;
 }
 

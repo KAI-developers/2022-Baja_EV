@@ -48,6 +48,7 @@
 
 char global_autonomous_state = ASSI_MANUAL_MODE;
 float global_accel_value = 0.0;
+float global_velocity_ms = 0.;
 char global_stop_trig = STOPTRIGGER_RUNNING;
 
 
