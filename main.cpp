@@ -140,7 +140,7 @@ void ROSPubSub(){
     nh.subscribe(sub_throttle);
     nh.subscribe(sub_brake_command);
 
-
+    
     while(1) 
     {
         // publishing part
@@ -152,7 +152,7 @@ void ROSPubSub(){
         nh.spinOnce();
         wait_ms(50);
     }
-
+    
 
     /*
     // just for test
@@ -262,6 +262,7 @@ void CarDriving() {
     while(1) {
         if (global_autonomous_state == ASSI_MANUAL_MODE) {
             TVS.process_accel();
+            global_velocity_ms = TVS.f_vehicle_vel_ms;
         }
         else if (   global_autonomous_state == ASSI_AUTONOMOUS_READY ||
                     global_autonomous_state == ASSI_AUTONOMOUS_EMERGENCY ||
@@ -270,6 +271,7 @@ void CarDriving() {
         }
         else if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {
             TVS.process_accel(global_accel_value);
+            global_velocity_ms = TVS.f_vehicle_vel_ms;
         }
     }
 }
