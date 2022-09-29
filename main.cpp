@@ -47,6 +47,7 @@
 
 char global_autonomous_state = ASSI_MANUAL_MODE;
 float global_accel_value = 0.0;
+float global_velocity_ms = 0.;
 
 
 void ROSPubSub();
@@ -111,7 +112,7 @@ void ROSPubSub(){
 
 
     KAI_msgs::AutonomousSignal auto_msg;
-    ros::Publisher autonomous_message("assi_state", &auto_msg);
+    ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
 
     ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
 
@@ -125,6 +126,8 @@ void ROSPubSub(){
     {
         // publishing part
         auto_msg.c_autonomous_state = global_autonomous_state;
+        auto_msg.f_car_speed = global_velocity_ms;
+
         autonomous_message.publish ( &auto_msg );
   
         nh.spinOnce();

@@ -565,8 +565,8 @@ void TorqueVectoringSystem::process_accel()
 
 
 
-    f_vel_FL_ms = CvtRPM2Vel(f_motor_RPM_FL);
-    f_vel_FR_ms = CvtRPM2Vel(f_motor_RPM_FR);
+    //f_vel_FL_ms = CvtRPM2Vel(f_motor_RPM_FL);
+    //f_vel_FR_ms = CvtRPM2Vel(f_motor_RPM_FR);
     f_vel_RL_ms = CvtRPM2Vel(f_motor_RPM_RL);
     f_vel_RR_ms = CvtRPM2Vel(f_motor_RPM_RR);
     
@@ -575,6 +575,7 @@ void TorqueVectoringSystem::process_accel()
 
 
     f_vehicle_vel_ms = CalAvgVel(f_vel_RR_ms, f_vel_RL_ms);
+    global_velocity_ms = f_vehicle_vel_ms;
 
     pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
 
