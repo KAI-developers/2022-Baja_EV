@@ -37,6 +37,7 @@
 //#include "CarState.h"
 #include "AutonomousMessage.h"
 #include "std_msgs/Float32.h"
+#include "std_msgs/Int8.h"
 //#include <iostream>
 
 
@@ -47,6 +48,7 @@
 
 char global_autonomous_state = ASSI_MANUAL_MODE;
 float global_accel_value = 0.0;
+char global_stop_trig = STOPTRIGGER_RUNNING;
 
 
 void ROSPubSub();
@@ -70,24 +72,34 @@ int main(int argc, char **argv){
 
     while(1)
     {
-        if (b_ASMS == ASMS_MANUAL_MODE)     
+        if (b_ASMS == ASMS_MANUAL_MODE) {
             global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
-
+            global_stop_trig = STOPTRIGGER_RUNNING;                // 자율주행 자동정지 변수를 running으로
+        }     
+            
         else                                                        // AS 풀려있음 (자율주행모드)
         {
-            if (b_estop == ESTOP_STOP)                                          // 릴레이가 mbed로 LOW 인가됨
-            {
-                if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
-                    global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
-                }
-                else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
-                    global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
+            if (global_stop_trig == STOPTRIGGER_END) {              // 자율주행으로 정지된 상태를 subscribe하면
+                global_autonomous_state == ASSI_AUTONOMOUS_END;
             }
 
-            else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
+
+            else if (global_stop_trig == STOPTRIGGER_RUNNING) 
             {
-                if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
-                    global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
+                if (b_estop == ESTOP_STOP)                                     // 릴레이가 mbed로 LOW 인가됨
+                {
+                    if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
+                        global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
+                    }
+                    else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
+                        global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
+                }
+
+                else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
+                {
+                    if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
+                        global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
+                }
             }
         }
     }
@@ -104,6 +116,11 @@ void throttleCallback(const std_msgs::Float32& msg)
     // nh.loginfo("throttle \r\n");
 }
 
+void brakeCallback(const std_msgs::Int8& msg)
+{
+    global_stop_trig = msg.data;
+    // nh.loginfo("throttle \r\n");
+}
 
 void ROSPubSub(){
 
@@ -114,11 +131,13 @@ void ROSPubSub(){
     ros::Publisher autonomous_message("assi_state", &auto_msg);
 
     ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
+    ros::Subscriber<std_msgs::Int8> sub_brake_command("full_brake_sig", &brakeCallback);
 
     ros::NodeHandle nh;
     nh.initNode();
     nh.advertise(autonomous_message);
     nh.subscribe(sub_throttle);
+    nh.subscribe(sub_brake_command);
 
 
     while(1) 
