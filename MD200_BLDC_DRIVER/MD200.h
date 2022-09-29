@@ -26,8 +26,7 @@
     수업시간 프로그래밍 갬성으로
 */
 
-// #ifndef MD200_H
-// #define MD200_H
+
 
 // #include "Arduino.h"
 
@@ -68,6 +67,9 @@
 //     void setDIR(int dir);
 // };
 
+
+#ifndef MD200_H
+#define MD200_H
 
 #include "mbed.h"
 
@@ -114,4 +116,4 @@ public:
 };
 
 
-// #endif  // MD200_H33 
+#endif  // MD200_H33 
