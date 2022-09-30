@@ -11,7 +11,6 @@ CLE34::CLE34(PinName PIN_PUL_PLUS, PinName PIN_DIR_PLUS, PinName PIN_ENA_PLUS, i
         pulse_per_rev(pulse_per_rev_)        
 {
     count_ms = 0;
-    PUL_PLUS = 0;         // pwm duty 50%
 
     degree_per_pulse = degreePerPulse(pulse_per_rev);
 
