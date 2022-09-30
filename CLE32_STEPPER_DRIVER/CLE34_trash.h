@@ -38,20 +38,20 @@
 
 class CLE34 {
 private:
-    PwmOut PUL_PLUS;
+    DigitalOut PUL_PLUS;
     DigitalOut DIR_PLUS;
     DigitalOut ENA_PLUS;
 
 protected:
     Timer time;
-    Ticker ticker_1ms;
+    Ticker ticker_1us;
 
-    unsigned int count_ms;
-
+    unsigned int count_100us;
+    unsigned int pulse_count;
     float pulse_per_rev;
     float degree_per_pulse;
 
-    void count1ms();
+    void count100us();
     float degreePerPulse(float pulse_per_rev);
 
 public:
@@ -59,10 +59,7 @@ public:
 
     void setDir(int dir);
     void enableOn(int state);
-    void setRPS(float speed_rps);
-    void turnAngle(float angle_deg, int dir, float speed_radps);
-    void stop_ms(float ms);
-    
+    void turnAngle(float angle, int dir, float speed);
 
 };
 

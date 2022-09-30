@@ -59,64 +59,33 @@ void CLE34::enableOn(int state)
 }
 
 
-void CLE34::setRPS(float speed_rps)
-{
-    float pwm_frequency;
-    float pwm_period_ms;
-
-    pwm_frequency = speed_rps * pulse_per_rev;
-    pwm_period_ms = 1000 / pwm_frequency;
-
-    PUL_PLUS.period_ms(pwm_period_ms);
-
-    pc_header.printf("pwm period : %f ms\r\n", pwm_period_ms);
-}
-
-
 /*
     Pulse/rev 4000일 때로 설정 가정한 함수
     Pulse/rev 수정되었으면, 별도의 함수 작성 요망
 */
-void CLE34::turnAngle(float angle_deg, int dir, float speed_rps)
+void CLE34::turnAngle(float angle_deg, int dir, float speed_radps)
 {
-    
+    float pwm_frequency;
     float pwm_generate_time_ms;
 
     setDir(dir);
     pc_header.printf("dir = %d\r\n", dir);
 
+    pwm_frequency = speed_radps * pulse_per_rev;
+    pc_header.printf("frequency : %f\r\n", pwm_frequency);
 
-    pwm_generate_time_ms = 1000 * angle_deg / (speed_rps * 360);
+    PUL_PLUS.period_ms(1000 / pwm_frequency);
+
+    pwm_generate_time_ms = 1000 * angle_deg / (speed_radps * 360);
     pc_header.printf("pwm generating time : %f ms\r\n", pwm_generate_time_ms);
 
     count_ms = 0;
-    
     while (1)
     {
-        
-        if (count_ms < pwm_generate_time_ms)
-        {
+        if (count_ms > pwm_generate_time_ms)
+            break;
+        else
             PUL_PLUS = 0.5;
-            pc_header.printf("gen count_ms : %d\r\n", count_ms);
-        }
-            
-        else
-            break;
-    
     }
-}
-
-void CLE34::stop_ms(float ms)
-{
-    count_ms = 0;
-    while(1)
-    {
-        if (count_ms < ms)
-        {
-            PUL_PLUS = 0;
-            pc_header.printf("stop count_ms : %d\r\n", count_ms);
-        }
-        else
-            break;
-    }
+    PUL_PLUS = 0;
 }

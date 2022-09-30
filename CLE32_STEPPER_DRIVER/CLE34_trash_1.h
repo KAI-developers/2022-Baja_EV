@@ -59,10 +59,7 @@ public:
 
     void setDir(int dir);
     void enableOn(int state);
-    void setRPS(float speed_rps);
     void turnAngle(float angle_deg, int dir, float speed_radps);
-    void stop_ms(float ms);
-    
 
 };
 
