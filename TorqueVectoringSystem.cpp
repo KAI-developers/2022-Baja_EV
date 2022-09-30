@@ -575,7 +575,7 @@ void TorqueVectoringSystem::process_accel()
 
 
     f_vehicle_vel_ms = CalAvgVel(f_vel_RR_ms, f_vel_RL_ms);
-    global_velocity_ms = f_vehicle_vel_ms;
+    
 
     pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
 
