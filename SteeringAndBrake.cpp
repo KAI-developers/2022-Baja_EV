@@ -35,9 +35,11 @@
 float global_steering_value = 0.;
 float global_brake_value = 0.0;
 char global_stop_trig = STOPTRIGGER_RUNNING;
+
 float global_data_0 = 0.0;
 float global_data_1 = 0.0;
-
+float global_data_2 = 0.0;
+int global_int_data = 0;
 // char global_remote_trigger = REMOTE_RECEIVED;
 
 
@@ -108,6 +110,8 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg)
 {
     global_data_0 = msg.data0;
     global_data_1 = msg.data1;
+    global_data_2 = msg.data2;
+    global_int_data = msg.int_data;
     // global_remote_trigger = REMOTE_RECEIVED;
 }
 
@@ -179,8 +183,17 @@ void brakeThread()
 
     while(1)
     {
-        stepdriver.turnAngle(global_data_0, CW, global_data_1);
-        // pc.printf("stop 1sec\r\n");
-        stepdriver.stop_ms(1000);
+        if(global_data_2 < 7.0)
+        {
+            stepdriver.turnAngle(global_data_0, global_int_data, global_data_1);
+            // pc.printf("stop 1sec\r\n");
+            stepdriver.stop_ms(1000);
+            global_data_2 = 7.7;
+        }
+        else if (global_data_2 >= 7.0)
+        {
+            stepdriver.stop_ms(1);
+        }
+        
     }
 }
