@@ -40,19 +40,19 @@
 
 
 // for c_autonomous_state
-#define ASSI_MANUAL_MODE             0
-#define ASSI_AUTONOMOUS_READY        1
-#define ASSI_AUTONOMOUS_DRIVING      2
-#define ASSI_AUTONOMOUS_END          3
-#define ASSI_AUTONOMOUS_EMERGENCY    4
+#define ASSI_MANUAL_MODE                0
+#define ASSI_AUTONOMOUS_READY           1
+#define ASSI_AUTONOMOUS_DRIVING         2
+#define ASSI_AUTONOMOUS_END             3
+#define ASSI_AUTONOMOUS_EMERGENCY       4
 
 // for c_estop_trig
-#define ESTOP_STOP              0
-#define ESTOP_RUN               1
+#define ESTOP_STOP                      0
+#define ESTOP_RUN                       1
 
 // for c_auto_stop_trig
-#define STOPTRIGGER_RUNNING     0
-#define STOPTRIGGER_END         1
+#define STOPTRIGGER_RUNNING             0
+#define STOPTRIGGER_END                 1               // 자율주행으로 인한 종료 상태
 
 
 namespace KAI_msgs

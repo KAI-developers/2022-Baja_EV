@@ -7,6 +7,7 @@
 
 #include "ros.h"
 #include "std_msgs/Float32.h"
+#include "std_msgs/Int8.h"
 #include <iostream>
 
 
@@ -20,16 +21,21 @@
 #define MAX_STEERING_SMALL_ANGLE        55.267
 #define MAX_STEERING_ANGLE              (MAX_STEERING_BIG_ANGLE + MAX_STEERING_SMALL_ANGLE) / 2.0
 
+#define STOPTRIGGER_RUNNING             0
+#define STOPTRIGGER_END                 1           // 자율주행으로 인한 종료상태
+
 
 
 float global_steering_value = 0.;
 float global_brake_value = 0.;
+char global_stop_trig = STOPTRIGGER_RUNNING;
 
 
 
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
 void steeringCallback(const std_msgs::Float32& msg);
 void brakeCallback(const std_msgs::Float32& msg);
+void fullBrakeCallback(const std_msgs::Float32& msg);
 
 
 
@@ -39,6 +45,7 @@ int main()
     ros::NodeHandle nh;
     ros::Subscriber<std_msgs::Float32> sub_steering("steering_control_command", &steeringCallback);
     ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
+    ros::Subscriber<std_msgs::Int8> sub_brake_command("full_brake_sig", &fullBrakeCallback);
     nh.initNode();
     nh.subscribe(sub_steering);
     nh.subscribe(sub_brake);
@@ -113,3 +120,7 @@ void brakeCallback(const std_msgs::Float32& msg)
     ;
 }
 
+void fullBrakeCallback(const std_msgs::Float32& msg);
+{
+    
+}
