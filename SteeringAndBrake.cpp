@@ -118,7 +118,7 @@ void ROSSubscribe()
     ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
     ros::Subscriber<std_msgs::Int8> full_brake("full_brake_sig", &fullBrakeCallback);
 
-    ros::Subscriber<actuator_remote::FiveFloats> remote_controller("actuator_remote", &remoteSignalCallback);
+    ros::Subscriber<actuator_remote::FiveFloats> remote_controller("remote_controller", &remoteSignalCallback);
 
     nh.initNode();
     nh.subscribe(sub_steering);
