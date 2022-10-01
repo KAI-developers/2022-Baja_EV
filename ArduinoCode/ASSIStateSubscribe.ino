@@ -33,26 +33,22 @@ void loop()
         digitalWrite(3, LOW);
         digitalWrite(4, LOW);
         digitalWrite(5, LOW);
-    } else if (state == ASSI_AUTONOMOUS_READY)
-    {
+    } else if (state == ASSI_AUTONOMOUS_READY) {
         digitalWrite(2, HIGH);
         digitalWrite(3, LOW);
         digitalWrite(4, LOW);
         digitalWrite(5, LOW);
-    } else if (state == ASSI_AUTONOMOUS_DRIVING)
-    {
+    } else if (state == ASSI_AUTONOMOUS_DRIVING) {
         digitalWrite(2, LOW);
         digitalWrite(3, HIGH);
         digitalWrite(4, LOW);
         digitalWrite(5, LOW);
-    } else if (state == ASSI_AUTONOMOUS_END)
-    {
+    } else if (state == ASSI_AUTONOMOUS_END) {
         digitalWrite(2, LOW);
         digitalWrite(3, LOW);
         digitalWrite(4, HIGH);
         digitalWrite(5, LOW);
-    } else if (state == ASSI_AUTONOMOUS_EMERGENCY)
-    {
+    } else if (state == ASSI_AUTONOMOUS_EMERGENCY) {
         digitalWrite(2, LOW);
         digitalWrite(3, LOW);
         digitalWrite(4, LOW);
