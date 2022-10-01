@@ -37,13 +37,14 @@
 #define MOTOR_OFF       1
 
 class CLE34 {
-private:
+public:
     PwmOut PUL_PLUS;
     DigitalOut DIR_PLUS;
     DigitalOut ENA_PLUS;
 
-protected:
+
     Timer time;
+
     Ticker ticker_1ms;
 
     unsigned int count_ms;
@@ -54,7 +55,7 @@ protected:
     void count1ms();
     float degreePerPulse(float pulse_per_rev);
 
-public:
+
     CLE34(PinName PIN_PUL_PLUS, PinName PIN_DIR_PLUS, PinName PIN_ENA_PLUS, int pulse_per_rev_);
 
     void setDir(int dir);

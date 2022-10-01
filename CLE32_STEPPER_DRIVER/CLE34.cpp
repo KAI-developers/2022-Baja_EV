@@ -11,6 +11,8 @@ CLE34::CLE34(PinName PIN_PUL_PLUS, PinName PIN_DIR_PLUS, PinName PIN_ENA_PLUS, i
         pulse_per_rev(pulse_per_rev_)        
 {
     count_ms = 0;
+    PUL_PLUS.period_us(450);
+    PUL_PLUS = 0.0;
 
     degree_per_pulse = degreePerPulse(pulse_per_rev);
 
@@ -61,14 +63,14 @@ void CLE34::enableOn(int state)
 void CLE34::setRPS(float speed_rps)
 {
     float pwm_frequency;
-    float pwm_period_ms;
+    float pwm_period_us;
 
     pwm_frequency = speed_rps * pulse_per_rev;
-    pwm_period_ms = 1000 / pwm_frequency;
+    pwm_period_us = 1000000 / pwm_frequency;
 
-    PUL_PLUS.period_ms(pwm_period_ms);
+    PUL_PLUS.period_us(pwm_period_us);
 
-    pc_header.printf("pwm period : %f ms\r\n", pwm_period_ms);
+    pc_header.printf("pwm period : %f us\r\n", pwm_period_us);
 }
 
 
@@ -96,7 +98,7 @@ void CLE34::turnAngle(float angle_deg, int dir, float speed_rps)
         if (count_ms < pwm_generate_time_ms)
         {
             PUL_PLUS = 0.5;
-            pc_header.printf("gen count_ms : %d\r\n", count_ms);
+            // pc_header.printf("gen count_ms : %d\r\n", count_ms);
         }
             
         else
@@ -112,8 +114,8 @@ void CLE34::stop_ms(float ms)
     {
         if (count_ms < ms)
         {
-            PUL_PLUS = 0;
-            pc_header.printf("stop count_ms : %d\r\n", count_ms);
+            PUL_PLUS = 0.0;
+            // pc_header.printf("stop count_ms : %d\r\n", count_ms);
         }
         else
             break;

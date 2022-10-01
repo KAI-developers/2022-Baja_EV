@@ -11,27 +11,31 @@ int main()
 
     stepdriver.enableOn(MOTOR_ON);
 
-    stepdriver.setRPS(1.111);
+    stepdriver.setRPS(0.5);
 
     wait(1);
 
 
     while(1)
     {
-        stepdriver.turnAngle(180, CW, 1.111);
-        stepdriver.stop_ms(1000);
+        stepdriver.turnAngle(180, CW, 0.5);
+        pc.printf("stop 2sec\r\n");
+        stepdriver.stop_ms(2000);
         pc.printf("process 1 end \r\n");
         
-        stepdriver.turnAngle(90, CCW, 1.111);
-        stepdriver.stop_ms(1000);
+        stepdriver.turnAngle(90, CCW, 0.5);
+        pc.printf("stop 2sec\r\n");
+        stepdriver.stop_ms(2000);
         pc.printf("process 2 end \r\n");
 
-        stepdriver.turnAngle(90, CW, 1.111);
-        stepdriver.stop_ms(1000);
+        stepdriver.turnAngle(90, CW, 0.5);
+        pc.printf("stop 2sec\r\n");
+        stepdriver.stop_ms(2000);
         pc.printf("process 3 end \r\n");
 
-        stepdriver.turnAngle(180, CCW, 1.111);
-        stepdriver.stop_ms(1000);
+        stepdriver.turnAngle(180, CCW, 0.5);
+        pc.printf("stop 2sec\r\n");
+        stepdriver.stop_ms(2000);
         pc.printf("process 4 end \r\n");
 
     }

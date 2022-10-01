@@ -1,6 +1,6 @@
 #include "HallSensor.h"
 #define MIN         60.0
-#define MOTOR_POLE  7
+#define MOTOR_POLE_PAIR  7
 
  
 HallSensor::HallSensor (PinName a) : m_hallSensor (a)
@@ -20,7 +20,7 @@ float HallSensor::getRPM ()
         fRpm = 0.0f;
     }
     else {
-        fRpm = 60/(m_period_sec * MOTOR_POLE);
+        fRpm = 60/(m_period_sec * MOTOR_POLE_PAIR);
     }
     
     return fRpm;
