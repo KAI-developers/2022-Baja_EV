@@ -35,7 +35,7 @@ char global_stop_trig = STOPTRIGGER_RUNNING;
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
 void steeringCallback(const std_msgs::Float32& msg);
 void brakeCallback(const std_msgs::Float32& msg);
-void fullBrakeCallback(const std_msgs::Float32& msg);
+void fullBrakeCallback(const std_msgs::Int8& msg);
 
 
 
@@ -120,7 +120,7 @@ void brakeCallback(const std_msgs::Float32& msg)
     ;
 }
 
-void fullBrakeCallback(const std_msgs::Float32& msg);
+void fullBrakeCallback(const std_msgs::Int8& msg);
 {
     
 }
