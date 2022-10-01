@@ -150,8 +150,8 @@ namespace actuator_remote
             return offset;
         }
 
-        const char * getType() { return "autonomous_message/autonomous_message"; };
-        const char * getMD5() { return "bb5506184944dfff7fe2a1f7b829572c"; };
+        const char * getType() { return "actuator_remote/FiveFloats"; };
+        const char * getMD5() { return "1880de680b57cf92bf1c557ec2e2a5a8"; };
 
     };
 }

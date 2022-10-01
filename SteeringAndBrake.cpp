@@ -57,9 +57,10 @@ int main()
 {
     Thread steering, brake;
     // Serial pc(USBTX, USBRX);
-    ROSSubscribe();
+    
     steering.start(steeringThread);
     brake.start(brakeThread);
+    ROSSubscribe();
 }
 
 
@@ -124,6 +125,12 @@ void ROSSubscribe()
     nh.subscribe(sub_brake);
     nh.subscribe(full_brake);
     nh.subscribe(remote_controller);
+
+    while(1)
+    {
+        nh.spinOnce();
+        wait_ms(1);
+    }
 }
 
 
