@@ -8,6 +8,7 @@
  float32 data2
  float32 data3
  float32 data4
+ int32   int_data
 
 */
 
@@ -35,13 +36,16 @@ namespace actuator_remote
         _float_data data3;
         _float_data data4;
 
+        typedef int32_t int_data_;
+        int_data_ int_data;
 
         FiveFloats():
             data0(0.0),
             data1(0.0),
             data2(0.0),
             data3(0.0),
-            data4(0.0)
+            data4(0.0),
+            int_data(0)
             { }
 
 
@@ -90,6 +94,17 @@ namespace actuator_remote
             *(outbuffer + offset + 3) = (u_data.base >> (8 * 3)) & 0xFF;
             offset += sizeof(this->data4);
 
+            union{
+                int32_t real;
+                uint32_t base;
+            } u_data_i;
+
+            u_data_i.real=this->int_data;
+            *(outbuffer + offset + 0) = (u_data_i.base >> (8 * 0)) & 0xFF;
+            *(outbuffer + offset + 1) = (u_data_i.base >> (8 * 1)) & 0xFF;
+            *(outbuffer + offset + 2) = (u_data_i.base >> (8 * 2)) & 0xFF;
+            *(outbuffer + offset + 3) = (u_data_i.base >> (8 * 3)) & 0xFF;
+            offset += sizeof(this->int_data);
 
             return offset;
         }
@@ -146,11 +161,23 @@ namespace actuator_remote
             this->data4 = u_data.real;
             offset += sizeof(this->data4);
 
+            union{
+                int32_t real;
+                uint32_t base;
+            } int_data;
+
+            int_data.base=0;
+            int_data.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+            int_data.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+            int_data.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+            int_data.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+            this->int_data = int_data.real;
+            offset += sizeof(this->int_data);
 
             return offset;
         }
 
-        const char * getType() { return "actuator_remote/FiveFloats"; };
+        const char * getType() { return "actuator_remote/SeveralDatas"; };
         const char * getMD5() { return "1880de680b57cf92bf1c557ec2e2a5a8"; };
 
     };

@@ -38,7 +38,7 @@ char global_stop_trig = STOPTRIGGER_RUNNING;
 float global_data_0 = 0.0;
 float global_data_1 = 0.0;
 
-char global_remote_trigger = REMOTE_RECEIVED;
+// char global_remote_trigger = REMOTE_RECEIVED;
 
 
 float Handle2WheelSteeringAngle(float f_handling_sensor_value);
@@ -108,7 +108,7 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg)
 {
     global_data_0 = msg.data0;
     global_data_1 = msg.data1;
-    global_remote_trigger = REMOTE_RECEIVED;
+    // global_remote_trigger = REMOTE_RECEIVED;
 }
 
 void ROSSubscribe()
@@ -179,11 +179,8 @@ void brakeThread()
 
     while(1)
     {
-        if (global_remote_trigger == REMOTE_RECEIVED)
-        {
-            stepdriver.turnAngle(global_data_0, CW, global_data_1);
-            // pc.printf("stop 1sec\r\n");
-            global_remote_trigger = REMOTE_WAITING;
-        }
+        stepdriver.turnAngle(global_data_0, CW, global_data_1);
+        // pc.printf("stop 1sec\r\n");
+        stepdriver.stop_ms(1000);
     }
 }
