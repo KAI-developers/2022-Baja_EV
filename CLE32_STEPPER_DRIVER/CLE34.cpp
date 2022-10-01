@@ -1,7 +1,7 @@
 #include "CLE34.h"
 
 
-Serial pc_header(USBTX, USBRX, 115200);
+// Serial pc_header(USBTX, USBRX, 115200);
 
 
 CLE34::CLE34(PinName PIN_PUL_PLUS, PinName PIN_DIR_PLUS, PinName PIN_ENA_PLUS, int pulse_per_rev_)
@@ -19,7 +19,7 @@ CLE34::CLE34(PinName PIN_PUL_PLUS, PinName PIN_DIR_PLUS, PinName PIN_ENA_PLUS, i
     time.start();
     ticker_1ms.attach(callback (this, &CLE34::count1ms), 0.001);
 
-    pc_header.printf("CLE34 object initialized \r\n");
+    // pc_header.printf("CLE34 object initialized \r\n");
 }
 
 void CLE34::count1ms()
@@ -70,7 +70,7 @@ void CLE34::setRPS(float speed_rps)
 
     PUL_PLUS.period_us(pwm_period_us);
 
-    pc_header.printf("pwm period : %f us\r\n", pwm_period_us);
+    // pc_header.printf("pwm period : %f us\r\n", pwm_period_us);
 }
 
 
@@ -82,13 +82,13 @@ void CLE34::turnAngle(float angle_deg, int dir, float speed_rps)
 {
     
     float pwm_generate_time_ms;
-
+    setRPS(speed_rps);
     setDir(dir);
-    pc_header.printf("dir = %d\r\n", dir);
+    // pc_header.printf("dir = %d\r\n", dir);
 
 
     pwm_generate_time_ms = 1000 * angle_deg / (speed_rps * 360);
-    pc_header.printf("pwm generating time : %f ms\r\n", pwm_generate_time_ms);
+    // pc_header.printf("pwm generating time : %f ms\r\n", pwm_generate_time_ms);
 
     count_ms = 0;
     
