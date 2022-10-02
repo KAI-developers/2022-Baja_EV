@@ -39,6 +39,7 @@ char global_stop_trig = STOPTRIGGER_RUNNING;
 float global_data_0 = 0.0;
 float global_data_1 = 0.0;
 float global_data_2 = 0.0;
+float global_data_3 = 0.0;
 int global_int_data = 0;
 // char global_remote_trigger = REMOTE_RECEIVED;
 
@@ -111,6 +112,7 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg)
     global_data_0 = msg.data0;
     global_data_1 = msg.data1;
     global_data_2 = msg.data2;
+    global_data_3 = msg.data3;
     global_int_data = msg.int_data;
     // global_remote_trigger = REMOTE_RECEIVED;
 }
@@ -155,7 +157,8 @@ void steeringThread()
     
     while(1)
     {
-        target_steering_deg = global_steering_value;
+        // target_steering_deg = global_steering_value;
+        target_steering_deg = global_data_3;
         measured_steering_deg = Handle2WheelSteeringAngle(handle_sensor.read());        // 왼쪽 조향이 양수 각
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
         motor_control_speed_RPM = KP_POSITION * error;                                   
