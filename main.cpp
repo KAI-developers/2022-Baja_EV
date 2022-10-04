@@ -32,12 +32,14 @@
 
 #include "TorqueVectoringSystem.h"
 
-#include "ros.h"
+Serial pc_main(USBTX, USBRX, 115200);
 
-//#include "CarState.h"
-#include "AutonomousMessage.h"
-#include "std_msgs/Float32.h"
-#include "std_msgs/Int8.h"
+// #include "ros.h"
+
+// #include "CarState.h"
+// #include "AutonomousMessage.h"
+// #include "std_msgs/Float32.h"
+// #include "std_msgs/Int8.h"
 //#include <iostream>
 
 
@@ -45,179 +47,24 @@
 #define ASMS_MANUAL_MODE        1
 #define ASMS_AUTONOMOUS_MODE    0
 
+// just for TVS test
+#define ASSI_MANUAL_MODE            0
+#define ASSI_AUTONOMOUS_READY       1
+#define ASSI_AUTONOMOUS_DRIVING     2
+#define ASSI_AUTONOMOUS_END         3
+#define ASSI_AUTONOMOUS_EMERGENCY   4
 
+float global_velocity_ms = 0.;
 char global_autonomous_state = ASSI_MANUAL_MODE;
 float global_accel_value = 0.0;
-float global_velocity_ms = 0.;
-char global_stop_trig = STOPTRIGGER_RUNNING;
+// char global_stop_trig = STOPTRIGGER_RUNNING;
 
 
-void ROSPubSub();
-void CarDriving();
-
-
-
-
-int main(int argc, char **argv){
-
-    DigitalIn b_estop(p12);
-    DigitalIn b_ASMS(p11);
-
-
-    Thread thread_ROS, thread_accel;
-
-    thread_ROS.start(ROSPubSub);
-
-    thread_accel.start(CarDriving);
-
-
-    while(1)
-    {
-        if (b_ASMS == ASMS_MANUAL_MODE) {
-            global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
-            global_stop_trig = STOPTRIGGER_RUNNING;                // 자율주행 자동정지 변수를 running으로
-        }     
-            
-        else                                                        // AS 풀려있음 (자율주행모드)
-        {
-            if (global_stop_trig == STOPTRIGGER_END) {              // 자율주행으로 정지된 상태를 subscribe하면
-                global_autonomous_state == ASSI_AUTONOMOUS_END;
-            }
-
-
-            else if (global_stop_trig == STOPTRIGGER_RUNNING) 
-            {
-                if (b_estop == ESTOP_STOP)                                     // 릴레이가 mbed로 LOW 인가됨
-                {
-                    if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
-                        global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
-                    }
-                    else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
-                        global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
-                }
-
-                else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
-                {
-                    if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
-                        global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
-                }
-            }
-        }
-    }
-
-    return 0;
-}
-
-
-
-
-void throttleCallback(const std_msgs::Float32& msg)
-{
-    global_accel_value = msg.data;
-    // nh.loginfo("throttle \r\n");
-}
-
-void brakeCallback(const std_msgs::Int8& msg)
-{
-    global_stop_trig = msg.data;
-    // nh.loginfo("throttle \r\n");
-}
-
-void ROSPubSub(){
-
-    /* for testing ros communication with arduino nano */
-
-
-    KAI_msgs::AutonomousSignal auto_msg;
-    ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
-
-    ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
-    ros::Subscriber<std_msgs::Int8> sub_brake_command("full_brake_sig", &brakeCallback);
-
-    ros::NodeHandle nh;
-    nh.initNode();
-    nh.advertise(autonomous_message);
-    nh.subscribe(sub_throttle);
-    nh.subscribe(sub_brake_command);
-
-    
-    while(1) 
-    {
-        // publishing part
-        auto_msg.c_autonomous_state = global_autonomous_state;
-        auto_msg.f_car_speed = global_velocity_ms;
-
-        autonomous_message.publish ( &auto_msg );
-  
-        nh.spinOnce();
-        wait_ms(50);
-    }
-    
-
-    /*
-    // just for test
-    AnalogIn resistor(p19);
-    float resistor_value = 0.0;
-
-    while(true){
-
-        resistor_value = resistor.read();
-
-        if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.c_autonomous_state = MANUAL_MODE;
-        else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.c_autonomous_state = AUTONOMOUS_READY;
-        else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.c_autonomous_state = AUTONOMOUS_DRIVING;
-        else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.c_autonomous_state = AUTONOMOUS_END;
-        else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.c_autonomous_state = AUTONOMOUS_EMERGENCY;
-        
-        autonomous_message.publish( &auto_msg );
-        nh.spinOnce();
-        wait_ms(50);
-    } 
-    //for testing ros communication with arduino nano
-    */
-}
-
-/*
-void ros_thread(){
-
-    ros::NodeHandle nh;
-    kai_msgs::CarState kai_msg;
-    ros::Publisher carstate("carstate", &kai_msg);
-
-    while(true){
-        
-        kai_msg.f_wheel_velocity_FL_ms=TVS.f_vel_FL_ms;
-        kai_msg.f_wheel_velocity_FR_ms=TVS.f_vel_FR_ms;
-        kai_msg.f_wheel_velocity_RL_ms=TVS.f_vel_RL_ms;
-        kai_msg.f_wheel_velocity_RR_ms=TVS.f_vel_RR_ms;
-        kai_msg.f_car_velocity_ms=TVS.f_vehicle_vel_ms;
-        kai_msg.f_motor_torque_FL_Nm=TVS.f_measured_torque_FL_Nm;
-        kai_msg.f_motor_torque_FR_Nm=TVS.f_measured_torque_FR_Nm;
-        kai_msg.f_motor_torque_RL_Nm=TVS.f_measured_torque_RL_Nm;
-        kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
-        kai_msg.i_throttle = TVS.i_PWR_percentage;
-        kai_msg.c_torque_mode_flag = TVS_ON;
-        kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
-        kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
-        carstate.publish( & kai_msg );
-        nh.spinOnce();
-        wait_ms(125);
-    }
-} */
-
-
-
-//========================== Mbed to PC ROS Communication Thread =======================//
-
-
-//========================== Torque Vectoring System Thread =======================//
+// void ROSPubSub();
 
 
 void CarDriving() {
 
-    // Serial pc_main(USBTX, USBRX, 115200);
 
 
 
@@ -256,7 +103,10 @@ void CarDriving() {
         FL_OUTPUT_THROTTLE_PIN, FR_OUTPUT_THROTTLE_PIN, RL_OUTPUT_THROTTLE_PIN, RR_OUTPUT_THROTTLE_PIN
     );
     // mpu 시작했는지 안했는지 표시해주는 함수 작성해야되는데 귀찮음
+    pc_main.printf("TVS object declared\r\n");
+
     TVS.mpu.start();
+    pc_main.printf("mpu started \r\n");
 
 
     while(1) {
@@ -275,6 +125,174 @@ void CarDriving() {
         }
     }
 }
-//========================== Torque Vectoring System Thread =======================//
+
+
+
+int main(){
+    pc_main.printf("mbed start\r\n");
+    
+    DigitalIn b_estop(p12);
+    DigitalIn b_ASMS(p11);
+    pc_main.printf("111");
+
+    // Thread thread_accel;
+    pc_main.printf("222");
+
+    CarDriving();
+
+    // thread_ROS.start(ROSPubSub);
+
+    
+
+
+    /*
+    while(1)
+    {
+        if (b_ASMS == ASMS_MANUAL_MODE) {
+            global_autonomous_state = ASSI_MANUAL_MODE;             // AS 눌려있음 (mbed에 high 인가)
+            global_stop_trig = STOPTRIGGER_RUNNING;                // 자율주행 자동정지 변수를 running으로
+        }     
+            
+        else                                                        // AS 풀려있음 (자율주행모드)
+        {
+            if (global_stop_trig == STOPTRIGGER_END) {              // 자율주행으로 정지된 상태를 subscribe하면
+                global_autonomous_state == ASSI_AUTONOMOUS_END;
+            }
+
+
+            else if (global_stop_trig == STOPTRIGGER_RUNNING) 
+            {
+                if (b_estop == ESTOP_STOP)                                     // 릴레이가 mbed로 LOW 인가됨
+                {
+                    if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {       // 주행 중에 누름
+                        global_autonomous_state = ASSI_AUTONOMOUS_EMERGENCY;        // 비상정지
+                    }
+                    else if (global_autonomous_state == ASSI_MANUAL_MODE)           // 수동주행 상태에서 자율로 넘어간 초기상황
+                        global_autonomous_state = ASSI_AUTONOMOUS_READY;            // 준비 상태로 바뀜
+                }
+
+                else if (b_estop == ESTOP_RUN)                                      // 릴레이가 mbed로 HIGH 인가됨, 준비상태에서만 동작하는 코드임
+                {
+                    if (global_autonomous_state == ASSI_AUTONOMOUS_READY)           // 준비상태일 때 켜지면
+                        global_autonomous_state = ASSI_AUTONOMOUS_DRIVING;          // 출발~
+                }
+            }
+        }
+    }
+
+    */
+}
+
+
+
+/*
+
+void throttleCallback(const std_msgs::Float32& msg)
+{
+    global_accel_value = msg.data;
+    // nh.loginfo("throttle \r\n");
+}
+
+void brakeCallback(const std_msgs::Int8& msg)
+{
+    global_stop_trig = msg.data;
+    // nh.loginfo("throttle \r\n");
+}
+*/
+
+
+
+// void ROSPubSub(){
+
+//     /* for testing ros communication with arduino nano */
+
+
+//     KAI_msgs::AutonomousSignal auto_msg;
+//     ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
+
+//     ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
+//     ros::Subscriber<std_msgs::Int8> sub_brake_command("full_brake_sig", &brakeCallback);
+
+//     ros::NodeHandle nh;
+//     nh.initNode();
+//     nh.advertise(autonomous_message);
+//     nh.subscribe(sub_throttle);
+//     nh.subscribe(sub_brake_command);
+
+    
+//     while(1) 
+//     {
+//         // publishing part
+//         auto_msg.c_autonomous_state = global_autonomous_state;
+//         auto_msg.f_car_speed = global_velocity_ms;
+
+//         autonomous_message.publish ( &auto_msg );
+  
+//         nh.spinOnce();
+//         wait_ms(50);
+//     }
+    
+
+//     /*
+//     // just for test
+//     AnalogIn resistor(p19);
+//     float resistor_value = 0.0;
+
+//     while(true){
+
+//         resistor_value = resistor.read();
+
+//         if (resistor_value >= 0.0 && resistor_value < 0.2)          auto_msg.c_autonomous_state = MANUAL_MODE;
+//         else if (resistor_value >= 0.2 && resistor_value < 0.4)     auto_msg.c_autonomous_state = AUTONOMOUS_READY;
+//         else if (resistor_value >= 0.4 && resistor_value < 0.6)     auto_msg.c_autonomous_state = AUTONOMOUS_DRIVING;
+//         else if (resistor_value >= 0.6 && resistor_value < 0.8)     auto_msg.c_autonomous_state = AUTONOMOUS_END;
+//         else if (resistor_value >= 0.8 && resistor_value < 1.1)     auto_msg.c_autonomous_state = AUTONOMOUS_EMERGENCY;
+        
+//         autonomous_message.publish( &auto_msg );
+//         nh.spinOnce();
+//         wait_ms(50);
+//     } 
+//     //for testing ros communication with arduino nano
+//     */
+// }
+
+
+
+/*
+void ros_thread(){
+
+    ros::NodeHandle nh;
+    kai_msgs::CarState kai_msg;
+    ros::Publisher carstate("carstate", &kai_msg);
+
+    while(true){
+        
+        kai_msg.f_wheel_velocity_FL_ms=TVS.f_vel_FL_ms;
+        kai_msg.f_wheel_velocity_FR_ms=TVS.f_vel_FR_ms;
+        kai_msg.f_wheel_velocity_RL_ms=TVS.f_vel_RL_ms;
+        kai_msg.f_wheel_velocity_RR_ms=TVS.f_vel_RR_ms;
+        kai_msg.f_car_velocity_ms=TVS.f_vehicle_vel_ms;
+        kai_msg.f_motor_torque_FL_Nm=TVS.f_measured_torque_FL_Nm;
+        kai_msg.f_motor_torque_FR_Nm=TVS.f_measured_torque_FR_Nm;
+        kai_msg.f_motor_torque_RL_Nm=TVS.f_measured_torque_RL_Nm;
+        kai_msg.f_motor_torque_RR_Nm=TVS.f_measured_torque_RR_Nm;
+        kai_msg.i_throttle = TVS.i_PWR_percentage;
+        kai_msg.c_torque_mode_flag = TVS_ON;
+        kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
+        kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
+        carstate.publish( & kai_msg );
+        nh.spinOnce();
+        wait_ms(125);
+    }
+} */
+
+
+
+//========================== Mbed to PC ROS Communication Thread =======================//
+
+
+
 
 
