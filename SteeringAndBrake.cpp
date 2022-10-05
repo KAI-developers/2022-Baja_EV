@@ -40,6 +40,7 @@ float global_data_0 = 0.0;
 float global_data_1 = 0.0;
 float global_data_2 = 0.0;
 float global_data_3 = 0.0;
+float global_data_4 = 0.0;
 int global_int_data = 0;
 // char global_remote_trigger = REMOTE_RECEIVED;
 
@@ -113,6 +114,7 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg)
     global_data_1 = msg.data1;
     global_data_2 = msg.data2;
     global_data_3 = msg.data3;
+    global_data_4 = msg.data4;
     global_int_data = msg.int_data;
     // global_remote_trigger = REMOTE_RECEIVED;
 }
@@ -158,15 +160,24 @@ void steeringThread()
     while(1)
     {
         // target_steering_deg = global_steering_value;
-        target_steering_deg = global_data_3;
+        if (global_data_2 > 99.0) 
+        {
+            target_steering_deg = global_data_3;
+            global_data_2 = 90;
+        }
+            
         measured_steering_deg = Handle2WheelSteeringAngle(handle_sensor.read());        // 왼쪽 조향이 양수 각
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
         motor_control_speed_RPM = KP_POSITION * error;                                   
 
-        if (motor_control_speed_RPM >= 0.0)             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
-            driver.runMotor(CCW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
-        else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
-            driver.runMotor(CW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
+
+        if(target_steering_deg < 40.0 || target_steering_deg > -40.0)
+        {
+            if (motor_control_speed_RPM >= 0.0)             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
+                driver.runMotor(CCW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
+            else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
+                driver.runMotor(CW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
+        }
         
 
         // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함

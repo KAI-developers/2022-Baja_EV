@@ -803,7 +803,7 @@ void TorqueVectoringSystem::process_accel(float accel_value)        // accel val
 
     mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
 
-    f_yawrate_meas_degs = IMU_gy;               // 김치박스가 위로 세워짐!
+    f_yawrate_meas_degs = IMU_gz;               // 김치박스가 다시 눕힘
     ////////////////////////////////////////////////////////////////// 
 
     f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
