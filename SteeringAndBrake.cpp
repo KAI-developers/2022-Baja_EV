@@ -14,9 +14,9 @@
 #include <iostream>
 
 
-#define KP_POSITION                     30.0
+#define KP_POSITION                     30
 
-#define DEFAULT_VOLTAGE_INPUT           0.5
+#define DEFAULT_VOLTAGE_INPUT           0.61
 #define MAX_RESISTOR_ANGLE              300.0
 #define MAX_RESISTOR_LIMITED_ANGLE      240.0
 #define MAX_HANDLE_ANGLE                300.0
@@ -33,6 +33,12 @@
 
 
 float global_steering_value = 0.;
+float global_measured_deg = 0.;
+float global_motor_speed = 0.;
+float global_pwm = 1.0;
+float global_handle_value = 0.;
+
+
 float global_brake_value = 0.0;
 char global_stop_trig = STOPTRIGGER_RUNNING;
 
@@ -40,7 +46,9 @@ float global_data_0 = 0.0;
 float global_data_1 = 0.0;
 float global_data_2 = 0.0;
 float global_data_3 = 0.0;
+float global_data_4 = 0.0;
 int global_int_data = 0;
+
 // char global_remote_trigger = REMOTE_RECEIVED;
 
 
@@ -54,6 +62,9 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg);
 void ROSSubscribe();
 void steeringThread();
 void brakeThread();
+float pwm_modify(float SPEED_pwm);
+
+ros::NodeHandle nh;
 
 
 int main()
@@ -62,7 +73,7 @@ int main()
     // Serial pc(USBTX, USBRX);
     
     steering.start(steeringThread);
-    brake.start(brakeThread);
+    // brake.start(brakeThread);
     ROSSubscribe();
 }
 
@@ -113,29 +124,43 @@ void remoteSignalCallback(const actuator_remote::FiveFloats& msg)
     global_data_1 = msg.data1;
     global_data_2 = msg.data2;
     global_data_3 = msg.data3;
+    global_data_4 = msg.data4;
     global_int_data = msg.int_data;
     // global_remote_trigger = REMOTE_RECEIVED;
 }
 
 void ROSSubscribe()
 {
-    ros::NodeHandle nh;
+    
     ros::Subscriber<std_msgs::Float32> sub_steering("steering_control_command", &steeringCallback);
     ros::Subscriber<std_msgs::Float32> sub_brake("brake_control_command", &brakeCallback);
     ros::Subscriber<std_msgs::Int8> full_brake("full_brake_sig", &fullBrakeCallback);
 
     ros::Subscriber<actuator_remote::FiveFloats> remote_controller("remote_controller", &remoteSignalCallback);
+    
+    actuator_remote::FiveFloats chk_value;
+    ros::Publisher check_value("check_value", &chk_value);
 
     nh.initNode();
+    nh.advertise(check_value);
     nh.subscribe(sub_steering);
     nh.subscribe(sub_brake);
     nh.subscribe(full_brake);
     nh.subscribe(remote_controller);
 
     while(1)
-    {
+    {   
+        chk_value.data0 = global_steering_value;
+        chk_value.data1 = global_measured_deg;
+        chk_value.data2 = global_motor_speed;
+        chk_value.data3 = global_pwm;
+        chk_value.data4 = global_handle_value;
+        chk_value.int_data = global_int_data;
+        
+        check_value.publish ( &chk_value );
+  
         nh.spinOnce();
-        wait_ms(1);
+        wait_ms(50);
     }
 }
 
@@ -153,20 +178,50 @@ void steeringThread()
 
     float error = 0.0;
     float motor_control_speed_RPM = 0.0;
+    
+    float handle_value = 0.0;
+    float pwm_value = 0.0;
 
     
     while(1)
     {
         // target_steering_deg = global_steering_value;
-        target_steering_deg = global_data_3;
-        measured_steering_deg = Handle2WheelSteeringAngle(handle_sensor.read());        // 왼쪽 조향이 양수 각
+        if (global_data_2 > 99.0) 
+        {
+            target_steering_deg = global_data_3;
+            global_data_2 = 90;
+        }
+        global_steering_value = target_steering_deg;        // for ROS INFO
+
+        handle_value = handle_sensor.read();
+        measured_steering_deg = Handle2WheelSteeringAngle(handle_value);        // 왼쪽 조향이 양수 각
+        global_measured_deg = measured_steering_deg;        // for ROS INFO
+        global_handle_value = handle_value;
+
+
         error = target_steering_deg - measured_steering_deg;                            // 양수면 왼쪽으로 더 돌아야 함
         motor_control_speed_RPM = KP_POSITION * error;                                   
+        global_motor_speed = motor_control_speed_RPM;
 
-        if (motor_control_speed_RPM >= 0.0)             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
-            driver.runMotor(CCW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
-        else if (motor_control_speed_RPM < 0.0)         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
-            driver.runMotor(CW, RUN, (abs(motor_control_speed_RPM) < 3300.0 ? abs(motor_control_speed_RPM) : 3300.0));
+
+        if(target_steering_deg < 20.0 || target_steering_deg > -20.0)
+        {
+            if (motor_control_speed_RPM >= 0.0) {             // 왼쪽으로 더 돌아야 함, 모터는 CCW회전
+                driver.runMotor(CCW, RUN);
+                pwm_value = ((abs(motor_control_speed_RPM) < 2800.0 ? abs(motor_control_speed_RPM) : 2800.0) - 0.0) * (1.0 - 0.0) / (MAX_RPM - 0.0) + 0.0;
+                if (pwm_value < 0.02)   pwm_value = 0.0;
+                driver.SPEED = pwm_value;
+                global_pwm = driver.SPEED.read();
+            
+            }
+            else if (motor_control_speed_RPM < 0.0) {         // 오른쪽으로 더 돌아야 함, 모터는 CW회전
+                driver.runMotor(CW, RUN);
+                pwm_value = ((abs(motor_control_speed_RPM) < 2800.0 ? abs(motor_control_speed_RPM) : 2800.0) - 0.0) * (1.0 - 0.0) / (MAX_RPM - 0.0) + 0.0;
+                if (pwm_value < 0.02)   pwm_value = 0.0;
+                driver.SPEED = pwm_value; // SPEED : pwm out
+                global_pwm = driver.SPEED.read();
+            }
+        }
         
 
         // pc.printf("target steering angle : %f \r\n", target_steering_deg);           // 어짜피 ros로 받으면 시리얼출력 확인이 안되긴 함
@@ -189,14 +244,20 @@ void brakeThread()
         if(global_data_2 < 7.0)
         {
             stepdriver.turnAngle(global_data_0, global_int_data, global_data_1);
-            // pc.printf("stop 1sec\r\n");
             stepdriver.stop_ms(1000);
             global_data_2 = 7.7;
+            
         }
         else if (global_data_2 >= 7.0)
         {
+            
             stepdriver.stop_ms(1);
+            
         }
         
     }
 }
+
+
+
+
