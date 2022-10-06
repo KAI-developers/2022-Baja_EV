@@ -219,10 +219,8 @@ public:
 
     void process_accel(float accel_value);
 
-    void process_off(
-    PinName PEDAL_SENSOR_PIN, PinName FL_OUTPUT_THROTTLE_PIN, PinName FR_OUTPUT_THROTTLE_PIN, PinName RL_OUTPUT_THROTTLE_PIN, PinName RR_OUTPUT_THROTTLE_PIN);
-
-
+    void process_accel_noTVS();
+    void process_accel_noTVS(float accel_value);
    
 };
 

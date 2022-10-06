@@ -88,7 +88,11 @@
 
 // for controlling velocity
 MD200::MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_START_STOP, PinName PIN_RUN_BRAKE, PinName PIN_SPEED)
-    :   INT_SPEED(PIN_INT_SPEED), DIR(PIN_DIR), RUN_BRAKE(PIN_RUN_BRAKE), START_STOP(PIN_START_STOP), SPEED(PIN_SPEED)
+    :   INT_SPEED(PIN_INT_SPEED),
+        DIR(PIN_DIR),
+        START_STOP(PIN_START_STOP),
+        RUN_BRAKE(PIN_RUN_BRAKE),
+        SPEED(PIN_SPEED)
 {
     INT_SPEED = INTERNAL_SPEED;
     DIR = CW;
@@ -193,11 +197,12 @@ in_max : 3300RPM
 out_min : 0
 out_max : 1.0
 */
-void MD200::runMotor(int dir, int action, float speed_RPM)
+float MD200::runMotor(int dir, int action, float speed_RPM)
 {
     // digitalWrite(pin_DIR_, dir)
     // digitalWrite(pin_RUN_BRAKE_, action);
     float SPEED_pwm = 0.0;
+    float retvalue;
 
     DIR = dir;
     RUN_BRAKE = action;
@@ -205,8 +210,10 @@ void MD200::runMotor(int dir, int action, float speed_RPM)
     // 목표 RPM만큼 SPEED핀에 인가함
     SPEED_pwm = (speed_RPM - 0.0) * (1.0 - 0.0) / (MAX_RPM - 0.0) + 0.0;
 
-    if (SPEED_pwm < 0.0)                            SPEED = 0.0;
-    else if (SPEED_pwm >= 0.0 && SPEED_pwm < 1.0)   SPEED = SPEED_pwm;
-    else                                            SPEED = 1.0;
+    if (SPEED_pwm < 0.0)                            retvalue = 0.0f;
+    else if (SPEED_pwm >= 0.0 && SPEED_pwm < 1.0)   retvalue = SPEED_pwm;
+    else                                            retvalue = 1.0f;
+
+    return retvalue;
 }
 

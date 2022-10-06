@@ -91,14 +91,13 @@
 #define MAX_RPM             3300.0  // MD200 최대 5000RPM으로 설정 시 mbed가 인가하는 최대RPM신호 근사값
 
 class MD200 {
-private:
+public:
     DigitalOut INT_SPEED;
     DigitalOut DIR;
     DigitalOut START_STOP;
     DigitalOut RUN_BRAKE;
     PwmOut SPEED;     // need to erase when using constant velocity
 
-public:
     MD200(PinName PIN_INT_SPEED, PinName PIN_DIR, PinName PIN_RUN_BRAKE, PinName PIN_START_STOP, PinName PIN_SPEED);
 
     // for constant velocity control

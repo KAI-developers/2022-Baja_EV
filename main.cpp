@@ -261,7 +261,7 @@ void CarDriving() {
 
     while(1) {
         if (global_autonomous_state == ASSI_MANUAL_MODE) {
-            TVS.process_accel();
+            TVS.process_accel_noTVS();
             global_velocity_ms = TVS.f_vehicle_vel_ms;
         }
         else if (   global_autonomous_state == ASSI_AUTONOMOUS_READY ||
