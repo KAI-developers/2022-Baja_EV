@@ -15,7 +15,7 @@
 //#define PI                              3.141592
 
 
-#define DEFAULT_VOLTAGE_INPUT           0.5
+#define DEFAULT_VOLTAGE_INPUT           0.61
 #define MAX_RESISTOR_ANGLE              300.0
 #define MAX_RESISTOR_LIMITED_ANGLE      240.0
 #define MAX_HANDLE_ANGLE                300.0
