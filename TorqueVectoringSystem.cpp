@@ -217,7 +217,12 @@ float TorqueVectoringSystem::CalHandlingVolt2WheelSteeringAngle(float f_handling
 */
 float TorqueVectoringSystem::CalInputYawRate(float f_avg_vel_ms, float f_wheel_steering_angle_deg)
 {
-    float f_input_yaw_rate_radps = f_avg_vel_ms * sin(f_wheel_steering_angle_deg) / WHEEL_BASE;
+    float f_input_yaw_rate_radps;
+    float f_steering_angle_rad;
+
+    f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
+    f_input_yaw_rate_radps = f_avg_vel_ms * sin(f_steering_angle_rad) / WHEEL_BASE;
+
     return f_input_yaw_rate_radps;
 }
 
@@ -609,12 +614,10 @@ void TorqueVectoringSystem::process_accel()
     
 
     mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
-
     f_yawrate_meas_degs = IMU_gz;               
     ////////////////////////////////////////////////////////////////// 
 
     f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
-
     pc.printf("measured yaw rate : %f \r\n", f_yaw_rate_meas_filtered_degs);
 
 
