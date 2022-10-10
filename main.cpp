@@ -96,16 +96,16 @@ void CarDriving() {
 
 
 
-/*
+
 void ROSPub() {
 
-    kai_msgs::CarState kai_msg;
-    ros::Publisher carstate("carstate", &kai_msg);
+    // kai_msgs::CarState kai_msg;
+    // ros::Publisher carstate("carstate", &kai_msg);
 
-    ros::NodeHandle nh;
-    nh.initNode();
+    // ros::NodeHandle nh;
+    // nh.initNode();
 
-    nh.advertise(carstate);
+    // nh.advertise(carstate);
 
 
     
@@ -117,22 +117,21 @@ void ROSPub() {
 
         // autonomous_message.publish ( &auto_msg );
   
-        nh.spinOnce();
-        wait_ms(50);
+        // nh.spinOnce();
+        // wait_ms(50);
     }
 
-} */
+} 
 
 
 
 
-int main(int argc, char **argv){
+int main(){
 
-    Thread thread_ROS, thread_accel;
-
+    // Thread thread_ROS, thread_accel;
+    // thread_accel.start(CarDriving);
     // thread_ROS.start(ROSPub);
-    thread_accel.start(CarDriving);
-
+    CarDriving();
 }
 
 

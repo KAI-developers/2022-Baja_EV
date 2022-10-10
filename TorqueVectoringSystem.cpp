@@ -590,8 +590,6 @@ void TorqueVectoringSystem::process_accel()
 
 
     f_vehicle_vel_ms = CalAvgVel(f_vel_RR_ms, f_vel_RL_ms);
-    
-
     pc.printf("Car velocity : %f \r\n", f_vehicle_vel_ms);
 
 
@@ -600,7 +598,6 @@ void TorqueVectoringSystem::process_accel()
 
 
     f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
-
     pc.printf("wheel angle : %f\r\n",f_wheel_angle_deg);
     
 
@@ -613,7 +610,7 @@ void TorqueVectoringSystem::process_accel()
 
     mpu.read(&IMU_gx, &IMU_gy, &IMU_gz, &IMU_ax, &IMU_ay, &IMU_az);
 
-    f_yawrate_meas_degs = IMU_gy;               // 김치박스가 위로 세워짐!
+    f_yawrate_meas_degs = IMU_gz;               
     ////////////////////////////////////////////////////////////////// 
 
     f_yaw_rate_meas_filtered_degs = IMUFilter(f_yawrate_meas_degs);
