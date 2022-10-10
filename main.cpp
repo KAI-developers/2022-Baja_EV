@@ -44,11 +44,6 @@
 
 
 
-// char global_autonomous_state = ASSI_MANUAL_MODE;
-// float global_accel_value = 0.0;
-// float global_velocity_ms = 0.;
-// char global_stop_trig = STOPTRIGGER_RUNNING;
-
 
 
 void CarDriving() {
@@ -93,39 +88,25 @@ void CarDriving() {
 
 
     while(1) {
-        if (global_autonomous_state == ASSI_MANUAL_MODE) {
-            TVS.process_accel_noTVS();
-            global_velocity_ms = TVS.f_vehicle_vel_ms;
-        }
-        else if (   global_autonomous_state == ASSI_AUTONOMOUS_READY ||
-                    global_autonomous_state == ASSI_AUTONOMOUS_EMERGENCY ||
-                    global_autonomous_state == ASSI_AUTONOMOUS_END) {
-            TVS.process_accel(0.);
-        }
-        else if (global_autonomous_state == ASSI_AUTONOMOUS_DRIVING) {
-            TVS.process_accel(global_accel_value);
-            global_velocity_ms = TVS.f_vehicle_vel_ms;
-        }
+        
+        TVS.process_accel();
+        // global_velocity_ms = TVS.f_vehicle_vel_ms;
     }
 }
 
 
+
+/*
 void ROSPub() {
 
-    /* for testing ros communication with arduino nano */
-
-
-    KAI_msgs::AutonomousSignal auto_msg;
-    ros::Publisher autonomous_message("AutonomousSignal", &auto_msg);
-
-    ros::Subscriber<std_msgs::Float32> sub_throttle("throttle_control_command", &throttleCallback);
-    ros::Subscriber<std_msgs::Int8> sub_brake_command("full_brake_sig", &brakeCallback);
+    kai_msgs::CarState kai_msg;
+    ros::Publisher carstate("carstate", &kai_msg);
 
     ros::NodeHandle nh;
     nh.initNode();
-    nh.advertise(autonomous_message);
-    nh.subscribe(sub_throttle);
-    nh.subscribe(sub_brake_command);
+
+    nh.advertise(carstate);
+
 
     
     while(1) 
@@ -140,7 +121,7 @@ void ROSPub() {
         wait_ms(50);
     }
 
-}
+} */
 
 
 
@@ -149,7 +130,7 @@ int main(int argc, char **argv){
 
     Thread thread_ROS, thread_accel;
 
-    thread_ROS.start(ROSPub);
+    // thread_ROS.start(ROSPub);
     thread_accel.start(CarDriving);
 
 }
