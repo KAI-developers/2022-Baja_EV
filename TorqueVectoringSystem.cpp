@@ -588,6 +588,45 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, floa
 
 }
 
+
+/*
+- 차량 평균 속도와 바퀴 회전각을 이용해 계산한 yawrate와 imu로 측정하여 필터링된 yawrate를 입력으로 받아 PID 제어기로 torque 계산하는 함수.
+- PID 제어기를 위한 error = 입력값(f_input_yaw_rate_radps) - 측정값(f_filtered_yaw_rate_radps)
+- f_PID_yaw_rate2torque_Nm = KP * error (각각 4개)
+- input
+    f_input_yaw_rate_radps: float, yawrate(rad/s), 차량 평균 속도와 바퀴 회전각으로 계산.
+    f_filtered_yaw_rate_radps: float, yawrate(rad/s), imu로 측정한 값을 필터링함.
+- output
+    피드백되는 스로틀 수치
+- configuration
+    KP_FOR_TORQUE (4개)
+*/
+void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+    float& f_PID_throttle_FL, float& f_PID_throttle_FR,
+    float& f_PID_throttle_RL, float& f_PID_throttle_RR)
+{
+    float f_yaw_rate_error_radps = f_input_yaw_rate_radps - f_filtered_yaw_rate_radps;
+
+
+    if (f_yaw_rate_error_radps < 0.0)
+    {
+        f_PID_throttle_FL = KP_FOR_TORQUE_FL * f_yaw_rate_error_radps;
+        f_PID_throttle_FR = KP_FOR_TORQUE_RL * f_yaw_rate_error_radps;
+        f_PID_throttle_RL = 0;
+        f_PID_throttle_RR = 0;
+    }
+
+
+    else
+    {
+        f_PID_throttle_FL = 0;
+        f_PID_throttle_FR = 0;
+        f_PID_throttle_RL = KP_FOR_TORQUE_FR * f_yaw_rate_error_radps;
+        f_PID_throttle_RR = KP_FOR_TORQUE_RR * f_yaw_rate_error_radps;
+    }
+    
+}
+
 /*
 - opamp 이용 전압 측정
 - 션트 저항 양단 전압 증폭값을 읽음
@@ -685,7 +724,7 @@ float TorqueVectoringSystem::PIDforThrottle(float f_torque_Nm, float f_measured_
 /*
 - PWM 함수의 입력 범위가 올바르도록 Saturation하는 함수.
 - input
-    f_output_throttle_(4방향): 각각 4개, float, torque(N*m)
+    f_output_throttle_(4방향): 각각 4개, float, voltage
     f_PID_throttle_(4방향): 각각 4개, float, voltage(V)
 - output
     f_PWM_input: 각각 4개, float, PWM 출력
@@ -762,7 +801,6 @@ void TorqueVectoringSystem::process_accel()
 
 
     f_yawrate_input_deg = CalInputYawRate(f_vehicle_vel_ms, f_wheel_angle_deg);
-
     pc.printf("target yaw rate : %f \t\t", f_yawrate_input_deg);
 
     
@@ -779,14 +817,14 @@ void TorqueVectoringSystem::process_accel()
     f_pedal_sensor_value = Pedal_Sensor.read();
     if (f_pedal_sensor_value <= PEDAL_MIN_VALUE)    f_pedal_sensor_value = PEDAL_MIN_VALUE;     // 안전장치
     if (f_pedal_sensor_value > PEDAL_MAX_VALUE)     f_pedal_sensor_value = PEDAL_MAX_VALUE;
-
     pc.printf("pedal raw value (0.0~1.0 value) : %f\r\n", f_pedal_sensor_value);
+
+
 
     //Modify pedal sensor vlaue range(true sensor value min~max) ----> (0.0 ~ 1.0)
     f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, 0.0, 1.0);
     if (f_pedal_modified_sensor_value < 0.0)    f_pedal_modified_sensor_value = 0.0;
     if (f_pedal_modified_sensor_value > 1.0)    f_pedal_modified_sensor_value = 1.0;
-    
     pc.printf("modified pedal value(0.0~1.0 value) : %f\r\n", f_pedal_modified_sensor_value);
     
 
@@ -804,68 +842,31 @@ void TorqueVectoringSystem::process_accel()
     
 
 
-    PIDYawRate2Torque(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
-        f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm,
-        f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
-        
-    pc.printf("P controlled torque output \r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm);
 
-
-    f_torque_FL_Nm = f_wheel_torque_FL_Nm + f_PID_yaw_rate2torque_FL_Nm;
-    f_torque_FR_Nm = f_wheel_torque_FR_Nm + f_PID_yaw_rate2torque_FR_Nm;
-    f_torque_RL_Nm = f_wheel_torque_RL_Nm + f_PID_yaw_rate2torque_RL_Nm;
-    f_torque_RR_Nm = f_wheel_torque_RR_Nm + f_PID_yaw_rate2torque_RR_Nm;
-
-    pc.printf("actual generating torque\r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_torque_FL_Nm, f_torque_FR_Nm, f_torque_RL_Nm, f_torque_RR_Nm);
-
-
-    f_output_throttle_FL = Torque2Throttle(f_torque_FL_Nm);
-    f_output_throttle_FR = Torque2Throttle(f_torque_FR_Nm);
-    f_output_throttle_RL = Torque2Throttle(f_torque_RL_Nm);
-    f_output_throttle_RR = Torque2Throttle(f_torque_RR_Nm);
-
-    pc.printf("feedforward output throttle signal(voltage)\r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
-
-
-
-    /* 나중에 썼으면 좋겠는 것들....
-    //f_motor_current 받기!
-    f_motor_current_FL_A = ReadCurrentSensor(FL_Current_OUT.read());
-    f_motor_current_FR_A = ReadCurrentSensor(FR_Current_OUT.read());
-    f_motor_current_RL_A = ReadCurrentSensor(RL_Current_OUT.read());
-    f_motor_current_RR_A = ReadCurrentSensor(RR_Current_OUT.read());
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_motor_current_FL_A, f_motor_current_FR_A, f_motor_current_RL_A, f_motor_current_RR_A);
-    
-    
-    f_measured_torque_FL_Nm = CvtCurrent2Torque(f_motor_current_FL_A);
-    f_measured_torque_FR_Nm = CvtCurrent2Torque(f_motor_current_FR_A);
-    f_measured_torque_RL_Nm = CvtCurrent2Torque(f_motor_current_RL_A);
-    f_measured_torque_RR_Nm = CvtCurrent2Torque(f_motor_current_RR_A);
-    pc.printf("measured torque \r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_measured_torque_FL_Nm, f_measured_torque_FR_Nm, f_measured_torque_RL_Nm, f_measured_torque_RR_Nm);
-    */
-
-
-
-    f_PID_throttle_FL = PIDforThrottle(f_torque_FL_Nm, f_measured_torque_FL_Nm, FL);
-    f_PID_throttle_FR = PIDforThrottle(f_torque_FR_Nm, f_measured_torque_FR_Nm, FR);
-    f_PID_throttle_RL = PIDforThrottle(f_torque_RL_Nm, f_measured_torque_RL_Nm, RL);
-    f_PID_throttle_RR = PIDforThrottle(f_torque_RR_Nm, f_measured_torque_RR_Nm, RR);
-
-    pc.printf("feedback output throttle signal(voltage)\r\n");
+    PIDYawRate2Throttle(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
+        f_PID_throttle_FL, f_PID_throttle_FR,
+        f_PID_throttle_RL, f_PID_throttle_RR);
+    pc.printf("P controlled throttle output \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);
 
 
 
-    f_PWM_input_FL = SumFFandPID(f_output_throttle_FL, f_PID_throttle_FL);
-    f_PWM_input_FR = SumFFandPID(f_output_throttle_FR, f_PID_throttle_FR);
-    f_PWM_input_RL = SumFFandPID(f_output_throttle_RL, f_PID_throttle_RL);
-    f_PWM_input_RR = SumFFandPID(f_output_throttle_RR, f_PID_throttle_RR);
+    f_output_throttle_FL = f_feedforward_throttle_FL + f_PID_throttle_FL;
+    f_output_throttle_FR = f_feedforward_throttle_FR + f_PID_throttle_FR;
+    f_output_throttle_RL = f_feedforward_throttle_RL + f_PID_throttle_RL;
+    f_output_throttle_RR = f_feedforward_throttle_RR + f_PID_throttle_RR;
+    if (f_output_throttle_FL > 5.0)     f_output_throttle_FL = 5.0;
+    if (f_output_throttle_FR > 5.0)     f_output_throttle_FR = 5.0;
+    if (f_output_throttle_RL > 5.0)     f_output_throttle_RL = 5.0;
+    if (f_output_throttle_RR > 5.0)     f_output_throttle_RR = 5.0;
+    pc.printf("raw output throttle signal(voltage)\r\n");
+    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
 
 
+    f_PWM_input_FL = map_f(f_output_throttle_FL, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_FR = map_f(f_output_throttle_FR, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_RL = map_f(f_output_throttle_RL, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_RR = map_f(f_output_throttle_RR, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
     pc.printf("raw throttle signal(PWM)\r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
@@ -883,12 +884,10 @@ void TorqueVectoringSystem::process_accel()
 
 
     
-    FL_Throttle_PWM = trimmed_throttle_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // noninverting amp outworld(ideal gain 1.515)
-    FR_Throttle_PWM = trimmed_throttle_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
-    RL_Throttle_PWM = trimmed_throttle_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
-    RR_Throttle_PWM = trimmed_throttle_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
-    
-    
+    FL_Throttle_PWM = trimmed_throttle_FL;      // float 값을 PwmOut 변수에 대입!
+    FR_Throttle_PWM = trimmed_throttle_FR; 
+    RL_Throttle_PWM = trimmed_throttle_RL; 
+    RR_Throttle_PWM = trimmed_throttle_RR; 
     pc.printf("actual throttle signal(voltage)\r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
             FL_Throttle_PWM.read() * 3.3, FR_Throttle_PWM.read() * 3.3, RL_Throttle_PWM.read() * 3.3, RR_Throttle_PWM.read() * 3.3);

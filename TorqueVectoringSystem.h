@@ -168,10 +168,10 @@ public:
     float f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm;
     float f_measured_torque_FL_Nm, f_measured_torque_FR_Nm, f_measured_torque_RL_Nm, f_measured_torque_RR_Nm;
 
-    float f_feedforward_throttle_FL;
-    float f_feedforward_throttle_FR;
-    float f_feedforward_throttle_RL;
-    float f_feedforward_throttle_RR;
+    float f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR;
+    float f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR;
+
+
 
     float f_torque_FL_Nm;
     float f_torque_FR_Nm;
@@ -181,7 +181,8 @@ public:
     float f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR;
     
 
-    float f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR;
+
+    
     float f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR;
 
 
@@ -211,6 +212,12 @@ public:
     void PIDYawRate2Torque(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
         float& f_PID_yaw_rate2torque_FL_Nm, float& f_PID_yaw_rate2torque_FR_Nm,
         float& f_PID_yaw_rate2torque_RL_Nm, float& f_PID_yaw_rate2torque_RR_Nm);
+
+
+    void PIDYawRate2Throttle(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+        float& f_PID_throttle_FL, float& f_PID_throttle_FR,
+        float& f_PID_throttle_RL, float& f_PID_throttle_RR);
+
 
     float OpAmp2Current(float f_opamp_ADC);
     float ReadCurrentSensor(float current_sensor_value);
