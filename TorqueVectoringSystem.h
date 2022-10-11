@@ -44,10 +44,10 @@
 #define CONTROLLER_INPUT_VOLT_RANGE     5.0
 
 
-#define KP_FOR_TORQUE_FL                0.1
-#define KP_FOR_TORQUE_FR                0.1
-#define KP_FOR_TORQUE_RL                0.1
-#define KP_FOR_TORQUE_RR                0.1
+#define KP_FOR_TORQUE_FL                0.5
+#define KP_FOR_TORQUE_FR                0.5
+#define KP_FOR_TORQUE_RL                0.5
+#define KP_FOR_TORQUE_RR                0.5
 #define KT                              17/148  //motor torque constant
 
 #define CURRENT_SENSOR_VALUE_m50A       1.1906

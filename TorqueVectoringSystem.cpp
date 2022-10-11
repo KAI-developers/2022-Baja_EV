@@ -611,8 +611,9 @@ void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_degps, fl
     if (f_yaw_rate_error_degps < 0.0)
     {
         f_PID_throttle_FL = KP_FOR_TORQUE_FL * abs(f_yaw_rate_error_degps);
-        f_PID_throttle_FR = KP_FOR_TORQUE_RL * abs(f_yaw_rate_error_degps);
-        f_PID_throttle_RL = 0;
+        f_PID_throttle_RL = KP_FOR_TORQUE_RL * abs(f_yaw_rate_error_degps);
+
+        f_PID_throttle_FR = 0;
         f_PID_throttle_RR = 0;
     }
 
@@ -620,8 +621,8 @@ void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_degps, fl
     else
     {
         f_PID_throttle_FL = 0;
-        f_PID_throttle_FR = 0;
-        f_PID_throttle_RL = KP_FOR_TORQUE_FR * abs(f_yaw_rate_error_degps);
+        f_PID_throttle_RL = 0;
+        f_PID_throttle_FR = KP_FOR_TORQUE_FR * abs(f_yaw_rate_error_degps);
         f_PID_throttle_RR = KP_FOR_TORQUE_RR * abs(f_yaw_rate_error_degps);
     }
     
@@ -758,15 +759,6 @@ void TorqueVectoringSystem::process_accel()
 {
 
 
-    // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);
-
-    float trimmed_throttle_FL;      // 0.5V에서 4.1V로 출력 변경을 위한 변수
-    float trimmed_throttle_FR;
-    float trimmed_throttle_RL;
-    float trimmed_throttle_RR;
-
-
-
     pc.printf("entered WHILE : \r\n");
 
     //f_motor_RPM_FL = FL_Hall_A.getRPM();
@@ -774,7 +766,7 @@ void TorqueVectoringSystem::process_accel()
     f_motor_RPM_RL = RL_Hall_A.getRPM();
     f_motor_RPM_RR = RR_Hall_A.getRPM();
     
-    pc.printf("FL RPM : %f, FR RPM : %f, RL RPM : %f, RR RPM : %f\r\n", f_motor_RPM_FL, f_motor_RPM_FR, f_motor_RPM_RL, f_motor_RPM_RR);
+    pc.printf("RL RPM : %f, RR RPM : %f\r\n", f_motor_RPM_RL, f_motor_RPM_RR);
 
 
 
@@ -783,7 +775,7 @@ void TorqueVectoringSystem::process_accel()
     f_vel_RL_ms = CvtRPM2Vel(f_motor_RPM_RL);
     f_vel_RR_ms = CvtRPM2Vel(f_motor_RPM_RR);
     
-    pc.printf("FL vel : %f, FR vel : %f, RL vel : %f, RR vel : %f\r\n", f_vel_FL_ms, f_vel_FR_ms, f_vel_RL_ms, f_vel_RR_ms);
+    pc.printf("RL vel : %f, RR vel : %f m/s\r\n", f_vel_RL_ms, f_vel_RR_ms);
 
 
 
@@ -865,53 +857,26 @@ void TorqueVectoringSystem::process_accel()
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_output_throttle_FL, f_output_throttle_FR, f_output_throttle_RL, f_output_throttle_RR);
 
 
-    f_PWM_input_FL = map_f(f_output_throttle_FL, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
-    f_PWM_input_FR = map_f(f_output_throttle_FR, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
-    f_PWM_input_RL = map_f(f_output_throttle_RL, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
-    f_PWM_input_RR = map_f(f_output_throttle_RR, 0.0, 5.0, 0.0, 1.0);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
-    pc.printf("raw throttle signal(PWM)\r\n");
+    f_PWM_input_FL = map_f(f_output_throttle_FL, 0.0, 5.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_FR = map_f(f_output_throttle_FR, 0.0, 5.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_RL = map_f(f_output_throttle_RL, 0.0, 5.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    f_PWM_input_RR = map_f(f_output_throttle_RR, 0.0, 5.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);   // 0~5V의 전압값을 0~1의 pwm출력으로 변환
+    pc.printf("modified PWM value : \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PWM_input_FL, f_PWM_input_FR, f_PWM_input_RL, f_PWM_input_RR);
 
 
 
-    // 0.0 ~ 1.0의 값으로 설정된 PWM신호를, 컨트롤러 특성에 맞게 map함수 구현
-    trimmed_throttle_FL = map_f(f_PWM_input_FL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-    trimmed_throttle_FR = map_f(f_PWM_input_FR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-    trimmed_throttle_RL = map_f(f_PWM_input_RL, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-    trimmed_throttle_RR = map_f(f_PWM_input_RR, 0.0, 1.0, CONTROLLER_IN_MIN, CONTROLLER_IN_MAX);
-
-    pc.printf("modified PWM value : \r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
-                trimmed_throttle_FL, trimmed_throttle_FR, trimmed_throttle_RL, trimmed_throttle_RR);
-
-
     
-    FL_Throttle_PWM = trimmed_throttle_FL;      // float 값을 PwmOut 변수에 대입!
-    FR_Throttle_PWM = trimmed_throttle_FR; 
-    RL_Throttle_PWM = trimmed_throttle_RL; 
-    RR_Throttle_PWM = trimmed_throttle_RR; 
+    FL_Throttle_PWM = f_PWM_input_FL;      // float 값을 PwmOut 변수에 대입!
+    FR_Throttle_PWM = f_PWM_input_FR; 
+    RL_Throttle_PWM = f_PWM_input_RL; 
+    RR_Throttle_PWM = f_PWM_input_RR; 
     pc.printf("actual throttle signal(voltage)\r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", 
             FL_Throttle_PWM.read() * 3.3, FR_Throttle_PWM.read() * 3.3, RL_Throttle_PWM.read() * 3.3, RR_Throttle_PWM.read() * 3.3);
 
-        
-
-    /* for TVS on, off mode
-    if(TVS_SWITCH==TVS_OFF) {
-        f_pedal_sensor_value = Pedal_Sensor.read();
-        pc.printf("pedal sensor value : %f\r\n", f_pedal_sensor_value);
-        //Modify pedal sensor vlaue range(0.4~1.4) ----> (0~3.3)
-        f_pedal_modified_sensor_value = ModifyPedalThrottle(f_pedal_sensor_value, PEDAL_MIN_VALUE, PEDAL_MAX_VALUE, THROTTLE_MAX, THROTTLE_MIN);
-    
-        FL_Throttle_PWM = f_PWM_input_FL * IDEAL_OPAMP_GAIN / FL_OPAMP_GAIN;            // OUTPUT from mbed to opamp gain modify(5V), input from controller
-        FR_Throttle_PWM = f_PWM_input_FR * IDEAL_OPAMP_GAIN / FR_OPAMP_GAIN; 
-        RL_Throttle_PWM = f_PWM_input_RL * IDEAL_OPAMP_GAIN / RL_OPAMP_GAIN; 
-        RR_Throttle_PWM = f_PWM_input_RR * IDEAL_OPAMP_GAIN / RR_OPAMP_GAIN; 
-    }
-    */
 
     pc.printf("\r\n\n\n\n\n");
-
 
 }
 
