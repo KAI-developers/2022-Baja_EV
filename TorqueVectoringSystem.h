@@ -168,6 +168,11 @@ public:
     float f_PID_yaw_rate2torque_FL_Nm, f_PID_yaw_rate2torque_FR_Nm, f_PID_yaw_rate2torque_RL_Nm, f_PID_yaw_rate2torque_RR_Nm;
     float f_measured_torque_FL_Nm, f_measured_torque_FR_Nm, f_measured_torque_RL_Nm, f_measured_torque_RR_Nm;
 
+    float f_feedforward_throttle_FL;
+    float f_feedforward_throttle_FR;
+    float f_feedforward_throttle_RL;
+    float f_feedforward_throttle_RR;
+
     float f_torque_FL_Nm;
     float f_torque_FR_Nm;
     float f_torque_RL_Nm;
@@ -194,6 +199,10 @@ public:
     bool WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
         float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm,
         float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm);
+
+    void WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+        float& f_feedforward_throttle_FL, float& f_feedforward_throttle_FR,
+        float& f_feedforward_throttle_RL, float& f_feedforward_throttle_RR);
 
     void PIDYawRate2Torque(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
         float& f_PID_yaw_rate2torque_FL_Nm, float& f_PID_yaw_rate2torque_FR_Nm,

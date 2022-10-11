@@ -78,6 +78,11 @@ TorqueVectoringSystem::TorqueVectoringSystem(
     f_wheel_torque_RL_Nm = 0.0;
     f_wheel_torque_RR_Nm = 0.0;
     
+    f_feedforward_throttle_FL = 0.0;
+    f_feedforward_throttle_FR = 0.0;
+    f_feedforward_throttle_RL = 0.0;
+    f_feedforward_throttle_RR = 0.0;
+
     f_PID_yaw_rate2torque_FL_Nm = 0.0;
     f_PID_yaw_rate2torque_FR_Nm = 0.0;
     f_PID_yaw_rate2torque_RL_Nm = 0.0;
@@ -394,6 +399,129 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 }
 
 
+
+void TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+        float& f_feedforward_throttle_FL, float& f_feedforward_throttle_FR,
+        float& f_feedforward_throttle_RL, float& f_feedforward_throttle_RR)
+{
+    int dir;
+    // normalize값 중 최대를 계산
+    float max_weight;
+    float f_wheel_torque_Nm[4];
+    float f_steering_angle_rad;
+    float pedal_throttle_voltage;
+    float R;                        // 팔길이 계산에 필요한 조향각 0도일 때 차량 중심과 바퀴축 거리
+    float phi;
+
+    float FL_arm_m;
+    float FR_arm_m;
+    float RL_arm_m;
+    float RR_arm_m;
+
+    float weight[4] = {0.0, 0.0, 0.0, 0.0};
+    float normalized_weight[4] = {0.0, 0.0, 0.0, 0.0};
+
+    float sum = 0.;
+
+
+
+    f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
+
+    pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
+    
+    if (pedal_throttle_voltage == 0.000000)
+    {
+        f_wheel_torque_FL_Nm = 0.0;
+        f_wheel_torque_FR_Nm = 0.0;
+        f_wheel_torque_RL_Nm = 0.0;
+        f_wheel_torque_RR_Nm = 0.0;
+
+        return -1;
+    }
+
+    
+    R = sqrt(pow(WHEEL_BASE / 2.0, 2.0) + pow(TRACK / 2.0, 2.0));
+
+    phi = atan((TRACK / 2.) / (WHEEL_BASE / 2.));
+
+    // 팔길이 계산
+    FL_arm_m = (-1) * R * sin(phi - f_steering_angle_rad);
+    FR_arm_m = R * sin(phi + f_steering_angle_rad);
+    RL_arm_m = (-1) * R * sin(phi);
+    RR_arm_m = R * sin(phi);
+
+    /*
+    // only positive value of arm length used
+    if(FL_arm_m < 0.0)  FL_arm_m = 0.0;
+    if(FR_arm_m < 0.0)  FR_arm_m = 0.0;
+    if(RL_arm_m < 0.0)  RL_arm_m = 0.0;
+    if(RR_arm_m < 0.0)  RR_arm_m = 0.0;
+    */
+
+    // need to erase this
+    pc.printf("\tfirst feed forward func \r\n");
+    pc.printf("\tarm length : \r\n\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", FL_arm_m, FR_arm_m, RL_arm_m, RR_arm_m);
+
+
+    
+    // 프로파일 함수에 대한 결과 계산 (rad 입력으로 수정)
+    weight[FL] = FL_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[FR] = FR_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[RL] = RL_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+    weight[RR] = RR_arm_m * f_steering_angle_rad * pedal_throttle_voltage + pedal_throttle_voltage;
+
+    pc.printf("\tweight (profile func output) \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", weight[FL], weight[FR], weight[RL], weight[RR]);
+
+
+    sum = weight[FL] + weight[FR] + weight[RL] + weight[RR];
+    pc.printf("\tsum : %f\r\n", sum);
+
+    //normalize
+    for(dir = 0; dir < 4; dir++)
+        normalized_weight[dir] = 4 * (pedal_throttle_voltage / sum) * weight[dir];
+
+    pc.printf("\tnormalized weight\r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", 
+            normalized_weight[FL], normalized_weight[FR], normalized_weight[RL], normalized_weight[RR]);
+
+    // find maximum normalized value
+    max_weight = normalized_weight[FL];
+    for(dir = 0; dir < 4; dir++)
+    {
+        if(max_weight < normalized_weight[dir]){
+            max_weight = normalized_weight[dir];
+        }
+    }
+
+    pc.printf("\tmax weight : %f\r\n", max_weight);
+
+
+    // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
+    for (dir = 0; dir < 4; dir++)
+    {
+        f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage)
+            * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
+            // 홀전류센서 장착 이후 실제 MAX_TORQUE 수정 요망
+    }
+
+    pc.printf("\tnormalized torque \r\n");
+    pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+
+    // 안전장치
+    for (dir = 0; dir < 4; dir++)
+    {
+        if (f_wheel_torque_Nm[dir] < 0.0)   f_wheel_torque_Nm[dir] = 0;
+    }
+    
+    f_wheel_torque_FL_Nm = f_wheel_torque_Nm[FL];
+    f_wheel_torque_FR_Nm = f_wheel_torque_Nm[FR];
+    f_wheel_torque_RL_Nm = f_wheel_torque_Nm[RL];
+    f_wheel_torque_RR_Nm = f_wheel_torque_Nm[RR];
+
+}
+
 /*
 - 차량 평균 속도와 바퀴 회전각을 이용해 계산한 yawrate와 imu로 측정하여 필터링된 yawrate를 입력으로 받아 PID 제어기로 torque 계산하는 함수.
 - PID 제어기를 위한 error = 입력값(f_input_yaw_rate_radps) - 측정값(f_filtered_yaw_rate_radps)
@@ -645,8 +773,6 @@ void TorqueVectoringSystem::process_accel()
     WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_modified_sensor_value,
         f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
         f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
-
-
     pc.printf("feedforward torque : \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
     
