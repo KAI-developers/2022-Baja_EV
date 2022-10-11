@@ -569,8 +569,8 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_degps, floa
 
     if (f_yaw_rate_error_degps < 0.0)
     {
-        f_PID_yaw_rate2torque_FL_Nm = KP_FOR_TORQUE_FL * f_yaw_rate_error_degps;
-        f_PID_yaw_rate2torque_RL_Nm = KP_FOR_TORQUE_RL * f_yaw_rate_error_degps;
+        f_PID_yaw_rate2torque_FL_Nm = KP_FOR_TORQUE_FL * abs(f_yaw_rate_error_degps);
+        f_PID_yaw_rate2torque_RL_Nm = KP_FOR_TORQUE_RL * abs(f_yaw_rate_error_degps);
 
         f_PID_yaw_rate2torque_FR_Nm = 0;
         f_PID_yaw_rate2torque_RR_Nm = 0;
@@ -582,8 +582,8 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_degps, floa
         f_PID_yaw_rate2torque_FL_Nm = 0;
         f_PID_yaw_rate2torque_RL_Nm = 0;
 
-        f_PID_yaw_rate2torque_FR_Nm = KP_FOR_TORQUE_FR * f_yaw_rate_error_degps;
-        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * f_yaw_rate_error_degps;
+        f_PID_yaw_rate2torque_FR_Nm = KP_FOR_TORQUE_FR * abs(f_yaw_rate_error_degps);
+        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * abs(f_yaw_rate_error_degps);
     }
 
 }
@@ -610,8 +610,8 @@ void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_degps, fl
 
     if (f_yaw_rate_error_degps < 0.0)
     {
-        f_PID_throttle_FL = KP_FOR_TORQUE_FL * f_yaw_rate_error_degps;
-        f_PID_throttle_FR = KP_FOR_TORQUE_RL * f_yaw_rate_error_degps;
+        f_PID_throttle_FL = KP_FOR_TORQUE_FL * abs(f_yaw_rate_error_degps);
+        f_PID_throttle_FR = KP_FOR_TORQUE_RL * abs(f_yaw_rate_error_degps);
         f_PID_throttle_RL = 0;
         f_PID_throttle_RR = 0;
     }
@@ -621,8 +621,8 @@ void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_degps, fl
     {
         f_PID_throttle_FL = 0;
         f_PID_throttle_FR = 0;
-        f_PID_throttle_RL = KP_FOR_TORQUE_FR * f_yaw_rate_error_degps;
-        f_PID_throttle_RR = KP_FOR_TORQUE_RR * f_yaw_rate_error_degps;
+        f_PID_throttle_RL = KP_FOR_TORQUE_FR * abs(f_yaw_rate_error_degps);
+        f_PID_throttle_RR = KP_FOR_TORQUE_RR * abs(f_yaw_rate_error_degps);
     }
     
 }
