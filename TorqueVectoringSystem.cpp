@@ -836,7 +836,7 @@ void TorqueVectoringSystem::process_accel()
 
     WheelSteeringAngle2Throttle(f_wheel_angle_deg, f_pedal_modified_sensor_value,
         f_feedforward_throttle_FL, f_feedforward_throttle_FR,
-        f_feedforward_throttle_RL, f_feedforward_throttle_RR)
+        f_feedforward_throttle_RL, f_feedforward_throttle_RR);
     pc.printf("feedforward throttle : \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR);
     
