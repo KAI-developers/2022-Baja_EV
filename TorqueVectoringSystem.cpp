@@ -216,19 +216,19 @@ float TorqueVectoringSystem::CalHandlingVolt2WheelSteeringAngle(float f_handling
     f_wheel_steering_angle_deg: float, degree
     f_avg_vel_ms: float, velocity(m/s), average
 - output
-    f_input_yaw_rate_radps: float, yawrate(rad/s)
+    f_input_yaw_rate_degps: float, yawrate(rad/s)
 - configuration
     WHEEL_BASE = 1.390m
 */
 float TorqueVectoringSystem::CalInputYawRate(float f_avg_vel_ms, float f_wheel_steering_angle_deg)
 {
-    float f_input_yaw_rate_radps;
+    float f_input_yaw_rate_degps;
     float f_steering_angle_rad;
 
     f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
-    f_input_yaw_rate_radps = f_avg_vel_ms * sin(f_steering_angle_rad) / WHEEL_BASE;
+    f_input_yaw_rate_degps = f_avg_vel_ms * sin(f_steering_angle_rad) / WHEEL_BASE;
 
-    return f_input_yaw_rate_radps;
+    return f_input_yaw_rate_degps;
 }
 
 
@@ -236,18 +236,18 @@ float TorqueVectoringSystem::CalInputYawRate(float f_avg_vel_ms, float f_wheel_s
 /*
 - imu로 측정한 yawrate를 지수감쇠필터를 이용해 노이즈를 제거한 yawrate를 반환하는 함수.
 - input
-    f_IMU_yaw_rate_radps: from imu, yawrate(rad/s)
+    f_IMU_yaw_rate_degps: from imu, yawrate(rad/s)
 - output
-    f_filtered_yaw_rate_radps: filtered, yawrate(rad/s)
+    f_filtered_yaw_rate_degps: filtered, yawrate(rad/s)
 - configuration
     ALPHA = 0.85
 */
-float TorqueVectoringSystem::IMUFilter(float i_IMU_yaw_rate_radps)
+float TorqueVectoringSystem::IMUFilter(float i_IMU_yaw_rate_degps)
 {
-    static float f_prev_yaw_rate_radps = 0.0;
-    float f_filtered_yaw_rate_radps = ((1.0 - ALPHA) * f_prev_yaw_rate_radps) + (ALPHA * i_IMU_yaw_rate_radps);
-    f_prev_yaw_rate_radps = f_filtered_yaw_rate_radps;
-    return f_filtered_yaw_rate_radps;
+    static float f_prev_yaw_rate_degps = 0.0;
+    float f_filtered_yaw_rate_degps = ((1.0 - ALPHA) * f_prev_yaw_rate_degps) + (ALPHA * i_IMU_yaw_rate_degps);
+    f_prev_yaw_rate_degps = f_filtered_yaw_rate_degps;
+    return f_filtered_yaw_rate_degps;
 }
 
 
@@ -550,27 +550,27 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
 
 /*
 - 차량 평균 속도와 바퀴 회전각을 이용해 계산한 yawrate와 imu로 측정하여 필터링된 yawrate를 입력으로 받아 PID 제어기로 torque 계산하는 함수.
-- PID 제어기를 위한 error = 입력값(f_input_yaw_rate_radps) - 측정값(f_filtered_yaw_rate_radps)
+- PID 제어기를 위한 error = 입력값(f_input_yaw_rate_degps) - 측정값(f_filtered_yaw_rate_degps)
 - f_PID_yaw_rate2torque_Nm = KP * error (각각 4개)
 - input
-    f_input_yaw_rate_radps: float, yawrate(rad/s), 차량 평균 속도와 바퀴 회전각으로 계산.
-    f_filtered_yaw_rate_radps: float, yawrate(rad/s), imu로 측정한 값을 필터링함.
+    f_input_yaw_rate_degps: float, yawrate(rad/s), 차량 평균 속도와 바퀴 회전각으로 계산.
+    f_filtered_yaw_rate_degps: float, yawrate(rad/s), imu로 측정한 값을 필터링함.
 - output
     f_PID_yaw_rate2torque_Nm (4개 각각 출력): float, torque(N*m)
 - configuration
     KP_FOR_TORQUE (4개)
 */
-void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_degps, float f_filtered_yaw_rate_degps,
     float& f_PID_yaw_rate2torque_FL_Nm, float& f_PID_yaw_rate2torque_FR_Nm,
     float& f_PID_yaw_rate2torque_RL_Nm, float& f_PID_yaw_rate2torque_RR_Nm)
 {
-    float f_yaw_rate_error_radps = f_input_yaw_rate_radps - f_filtered_yaw_rate_radps;
+    float f_yaw_rate_error_degps = f_input_yaw_rate_degps - f_filtered_yaw_rate_degps;
 
 
-    if (f_yaw_rate_error_radps < 0.0)
+    if (f_yaw_rate_error_degps < 0.0)
     {
-        f_PID_yaw_rate2torque_FL_Nm = KP_FOR_TORQUE_FL * f_yaw_rate_error_radps;
-        f_PID_yaw_rate2torque_RL_Nm = KP_FOR_TORQUE_RL * f_yaw_rate_error_radps;
+        f_PID_yaw_rate2torque_FL_Nm = KP_FOR_TORQUE_FL * f_yaw_rate_error_degps;
+        f_PID_yaw_rate2torque_RL_Nm = KP_FOR_TORQUE_RL * f_yaw_rate_error_degps;
 
         f_PID_yaw_rate2torque_FR_Nm = 0;
         f_PID_yaw_rate2torque_RR_Nm = 0;
@@ -582,8 +582,8 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, floa
         f_PID_yaw_rate2torque_FL_Nm = 0;
         f_PID_yaw_rate2torque_RL_Nm = 0;
 
-        f_PID_yaw_rate2torque_FR_Nm = KP_FOR_TORQUE_FR * f_yaw_rate_error_radps;
-        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * f_yaw_rate_error_radps;
+        f_PID_yaw_rate2torque_FR_Nm = KP_FOR_TORQUE_FR * f_yaw_rate_error_degps;
+        f_PID_yaw_rate2torque_RR_Nm = KP_FOR_TORQUE_RR * f_yaw_rate_error_degps;
     }
 
 }
@@ -591,27 +591,27 @@ void TorqueVectoringSystem::PIDYawRate2Torque(float f_input_yaw_rate_radps, floa
 
 /*
 - 차량 평균 속도와 바퀴 회전각을 이용해 계산한 yawrate와 imu로 측정하여 필터링된 yawrate를 입력으로 받아 PID 제어기로 torque 계산하는 함수.
-- PID 제어기를 위한 error = 입력값(f_input_yaw_rate_radps) - 측정값(f_filtered_yaw_rate_radps)
+- PID 제어기를 위한 error = 입력값(f_input_yaw_rate_degps) - 측정값(f_filtered_yaw_rate_degps)
 - f_PID_yaw_rate2torque_Nm = KP * error (각각 4개)
 - input
-    f_input_yaw_rate_radps: float, yawrate(rad/s), 차량 평균 속도와 바퀴 회전각으로 계산.
-    f_filtered_yaw_rate_radps: float, yawrate(rad/s), imu로 측정한 값을 필터링함.
+    f_input_yaw_rate_degps: float, yawrate(rad/s), 차량 평균 속도와 바퀴 회전각으로 계산.
+    f_filtered_yaw_rate_degps: float, yawrate(rad/s), imu로 측정한 값을 필터링함.
 - output
     피드백되는 스로틀 수치
 - configuration
     KP_FOR_TORQUE (4개)
 */
-void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_degps, float f_filtered_yaw_rate_degps,
     float& f_PID_throttle_FL, float& f_PID_throttle_FR,
     float& f_PID_throttle_RL, float& f_PID_throttle_RR)
 {
-    float f_yaw_rate_error_radps = f_input_yaw_rate_radps - f_filtered_yaw_rate_radps;
+    float f_yaw_rate_error_degps = f_input_yaw_rate_degps - f_filtered_yaw_rate_degps;
 
 
-    if (f_yaw_rate_error_radps < 0.0)
+    if (f_yaw_rate_error_degps < 0.0)
     {
-        f_PID_throttle_FL = KP_FOR_TORQUE_FL * f_yaw_rate_error_radps;
-        f_PID_throttle_FR = KP_FOR_TORQUE_RL * f_yaw_rate_error_radps;
+        f_PID_throttle_FL = KP_FOR_TORQUE_FL * f_yaw_rate_error_degps;
+        f_PID_throttle_FR = KP_FOR_TORQUE_RL * f_yaw_rate_error_degps;
         f_PID_throttle_RL = 0;
         f_PID_throttle_RR = 0;
     }
@@ -621,8 +621,8 @@ void TorqueVectoringSystem::PIDYawRate2Throttle(float f_input_yaw_rate_radps, fl
     {
         f_PID_throttle_FL = 0;
         f_PID_throttle_FR = 0;
-        f_PID_throttle_RL = KP_FOR_TORQUE_FR * f_yaw_rate_error_radps;
-        f_PID_throttle_RR = KP_FOR_TORQUE_RR * f_yaw_rate_error_radps;
+        f_PID_throttle_RL = KP_FOR_TORQUE_FR * f_yaw_rate_error_degps;
+        f_PID_throttle_RR = KP_FOR_TORQUE_RR * f_yaw_rate_error_degps;
     }
     
 }
@@ -795,10 +795,12 @@ void TorqueVectoringSystem::process_accel()
     pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
 
 
-    f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
+    // f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
+    f_wheel_angle_deg = map_f(Handle_Sensor.read(), RESISTOR_RIGHT_MAX, RESISTOR_LEFT_MAX, -61.252, 61.252);
+    if (f_wheel_angle_deg < -61.252)    f_wheel_angle_deg = -61.252;
+    if (f_wheel_angle_deg > 61.252)     f_wheel_angle_deg = 61.252;
     pc.printf("wheel angle : %f\r\n",f_wheel_angle_deg);
-    
-
+    ///////////////////////////////////////////////////////////////
 
     f_yawrate_input_deg = CalInputYawRate(f_vehicle_vel_ms, f_wheel_angle_deg);
     pc.printf("target yaw rate : %f \t\t", f_yawrate_input_deg);

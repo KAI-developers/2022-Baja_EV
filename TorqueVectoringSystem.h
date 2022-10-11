@@ -16,6 +16,9 @@
 
 
 #define DEFAULT_VOLTAGE_INPUT           0.61
+#define RESISTOR_LEFT_MAX               0.8
+#define RESISTOR_RIGHT_MAX              0.2
+
 #define MAX_RESISTOR_ANGLE              300.0
 #define MAX_RESISTOR_LIMITED_ANGLE      240.0
 #define MAX_HANDLE_ANGLE                300.0
@@ -195,7 +198,7 @@ public:
     float CalAvgVel(float f_velocity1_ms, float f_velocity2_ms);
     float CalHandlingVolt2WheelSteeringAngle(float f_handling_sensor_value);
     float CalInputYawRate(float f_wheel_steering_angle_deg, float f_avg_vel_ms);
-    float IMUFilter(float i_IMU_yaw_rate_radps);
+    float IMUFilter(float i_IMU_yaw_rate_degps);
 
 
 
@@ -209,12 +212,12 @@ public:
 
 
 
-    void PIDYawRate2Torque(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+    void PIDYawRate2Torque(float f_input_yaw_rate_degps, float f_filtered_yaw_rate_degps,
         float& f_PID_yaw_rate2torque_FL_Nm, float& f_PID_yaw_rate2torque_FR_Nm,
         float& f_PID_yaw_rate2torque_RL_Nm, float& f_PID_yaw_rate2torque_RR_Nm);
 
 
-    void PIDYawRate2Throttle(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
+    void PIDYawRate2Throttle(float f_input_yaw_rate_degps, float f_filtered_yaw_rate_degps,
         float& f_PID_throttle_FL, float& f_PID_throttle_FR,
         float& f_PID_throttle_RL, float& f_PID_throttle_RR);
 
