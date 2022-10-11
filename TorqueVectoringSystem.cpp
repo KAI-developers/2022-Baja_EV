@@ -399,15 +399,34 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Torque(float f_wheel_steering_ang
 }
 
 
-
-void TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+/*
+- 회전 반경, phi, 조향각을 이용하여 팔 길이를 구한 후, 팔 길이의 비율로 토크를 분배하는 함수.
+- 팔 길이 계산
+    fl = R * sin(phi - f_wheel_steering_angle_deg);
+    fr = R * sin(phi + f_wheel_steering_angle_deg);
+    rl = (-1) * R * sin(phi);
+    rr = R * sin(phi)
+- weight = 팔 길이 * 조향각 * throttle + throttle
+- sum = weight(4방향)
+- torque(1방향) = throttle / sum * weight(1방향)
+- input
+    f_wheel_steering_angle_deg: float, degree
+    f_pedal_sensor_value : float, voltage(V)
+- output
+    f_feedforward_throttle(방향)
+- configuration
+    WHEEL_BASE = 1.390m
+    TRACK = 1.300m
+- 결과 출력은 각 바퀴에 인가될 스로틀전압.
+*/
+bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
         float& f_feedforward_throttle_FL, float& f_feedforward_throttle_FR,
         float& f_feedforward_throttle_RL, float& f_feedforward_throttle_RR)
 {
     int dir;
     // normalize값 중 최대를 계산
     float max_weight;
-    float f_wheel_torque_Nm[4];
+    float f_throttle[4];
     float f_steering_angle_rad;
     float pedal_throttle_voltage;
     float R;                        // 팔길이 계산에 필요한 조향각 0도일 때 차량 중심과 바퀴축 거리
@@ -428,7 +447,6 @@ void TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
     f_steering_angle_rad = f_wheel_steering_angle_deg * PI / 180;
 
     pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
-    
     if (pedal_throttle_voltage == 0.000000)
     {
         f_wheel_torque_FL_Nm = 0.0;
@@ -497,30 +515,38 @@ void TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
     pc.printf("\tmax weight : %f\r\n", max_weight);
 
 
+    /*
     // 0~max_weight 범위의 normalize된 값을 0~페달스로틀입력 으로 mapping
     for (dir = 0; dir < 4; dir++)
     {
         f_wheel_torque_Nm[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage)
             * (ACTUAL_MAX_TORQUE_NY / CONTROLLER_INPUT_VOLT_RANGE);
             // 홀전류센서 장착 이후 실제 MAX_TORQUE 수정 요망
+    } */
+    for (dir = 0; dir < 4; dir++) {
+        f_throttle[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage);
     }
 
-    pc.printf("\tnormalized torque \r\n");
+
+    pc.printf("\tnormalized throttle \r\n");
     pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
-            f_wheel_torque_Nm[FL], f_wheel_torque_Nm[FR], f_wheel_torque_Nm[RL], f_wheel_torque_Nm[RR]);
+            f_throttle[FL], f_throttle[FR], f_throttle[RL], f_throttle[RR]);
 
     // 안전장치
     for (dir = 0; dir < 4; dir++)
     {
-        if (f_wheel_torque_Nm[dir] < 0.0)   f_wheel_torque_Nm[dir] = 0;
+        if (f_throttle[dir] < 0.0)   f_throttle[dir] = 0;
     }
     
-    f_wheel_torque_FL_Nm = f_wheel_torque_Nm[FL];
-    f_wheel_torque_FR_Nm = f_wheel_torque_Nm[FR];
-    f_wheel_torque_RL_Nm = f_wheel_torque_Nm[RL];
-    f_wheel_torque_RR_Nm = f_wheel_torque_Nm[RR];
+    f_feedforward_throttle_FL = f_throttle[FL];
+    f_feedforward_throttle_FR = f_throttle[FR];
+    f_feedforward_throttle_RL = f_throttle[RL];
+    f_feedforward_throttle_RR = f_throttle[RR];
 
+    return 0;
 }
+
+
 
 /*
 - 차량 평균 속도와 바퀴 회전각을 이용해 계산한 yawrate와 imu로 측정하여 필터링된 yawrate를 입력으로 받아 PID 제어기로 torque 계산하는 함수.
@@ -770,11 +796,11 @@ void TorqueVectoringSystem::process_accel()
     
 
 
-    WheelSteeringAngle2Torque(f_wheel_angle_deg, f_pedal_modified_sensor_value,
-        f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm,
-        f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
-    pc.printf("feedforward torque : \r\n");
-    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_wheel_torque_FL_Nm, f_wheel_torque_FR_Nm, f_wheel_torque_RL_Nm, f_wheel_torque_RR_Nm);
+    WheelSteeringAngle2Throttle(f_wheel_angle_deg, f_pedal_modified_sensor_value,
+        f_feedforward_throttle_FL, f_feedforward_throttle_FR,
+        f_feedforward_throttle_RL, f_feedforward_throttle_RR)
+    pc.printf("feedforward throttle : \r\n");
+    pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR);
     
 
 
@@ -889,7 +915,12 @@ void TorqueVectoringSystem::process_accel()
 }
 
 
-// for autonomous driving
+
+
+/*=====================================================================================================
+=======================================================================================================
+    for autonomous driving
+=======================================================================================================*/
 void TorqueVectoringSystem::process_accel(float accel_value)        // accel value 0.0 ~ 1.0
 {
     // DigitalIn  TVS_SWITCH(TVS_SWITCH_PIN);

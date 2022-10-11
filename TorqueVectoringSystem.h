@@ -196,13 +196,17 @@ public:
     float CalInputYawRate(float f_wheel_steering_angle_deg, float f_avg_vel_ms);
     float IMUFilter(float i_IMU_yaw_rate_radps);
 
+
+
     bool WheelSteeringAngle2Torque(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
         float& f_wheel_torque_FL_Nm, float& f_wheel_torque_FR_Nm,
-        float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm);
+        float& f_wheel_torque_RL_Nm, float& f_wheel_torque_RR_Nm);  // 안 씀
 
-    void WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
+    bool WheelSteeringAngle2Throttle(float f_wheel_steering_angle_deg, float f_pedal_sensor_value,
         float& f_feedforward_throttle_FL, float& f_feedforward_throttle_FR,
         float& f_feedforward_throttle_RL, float& f_feedforward_throttle_RR);
+
+
 
     void PIDYawRate2Torque(float f_input_yaw_rate_radps, float f_filtered_yaw_rate_radps,
         float& f_PID_yaw_rate2torque_FL_Nm, float& f_PID_yaw_rate2torque_FR_Nm,
@@ -214,6 +218,7 @@ public:
     float CvtCurrent2Torque(float f_motor_current_A);
 
     float Torque2Throttle(float f_torque_Nm);
+
 
     float PIDforThrottle(float f_torque_Nm, float f_measured_torque_Nm, int direction);
 
