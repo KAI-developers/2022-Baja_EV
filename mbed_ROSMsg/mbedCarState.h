@@ -140,7 +140,7 @@ namespace kai_msgs
 
             for( uint32_t i=0; i<4; i++){
                 u_flag.real = this->c_motor_mode_flag[i];
-                *(outbuffer + offset + 0) = (u_flag.base >> (8 * 0)) & 0xFF;\
+                *(outbuffer + offset + 0) = (u_flag.base >> (8 * 0)) & 0xFF;
                 offset += sizeof(this->c_motor_mode_flag[i]);
             }
 
