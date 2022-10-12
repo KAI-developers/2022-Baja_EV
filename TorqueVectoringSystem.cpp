@@ -449,11 +449,14 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
     pedal_throttle_voltage = f_pedal_sensor_value * CONTROLLER_INPUT_VOLT_RANGE;      //  need to set by configuration
     if (pedal_throttle_voltage == 0.000000)
     {
-        f_wheel_torque_FL_Nm = 0.0;
-        f_wheel_torque_FR_Nm = 0.0;
-        f_wheel_torque_RL_Nm = 0.0;
-        f_wheel_torque_RR_Nm = 0.0;
+        f_feedforward_throttle_FL = 0.0;
+        f_feedforward_throttle_FR = 0.0;
+        f_feedforward_throttle_RL = 0.0;
+        f_feedforward_throttle_RR = 0.0;
 
+        pc.printf("\tnormalized throttle \r\n");
+        pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR);
         return -1;
     }
 
