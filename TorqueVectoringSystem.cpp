@@ -529,8 +529,6 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
     for (dir = 0; dir < 4; dir++) {
         f_throttle[dir] = map_f(normalized_weight[dir], TORQUE_VECTORING_RATE, max_weight, 0.0, pedal_throttle_voltage);
     }
-
-
     pc.printf("\tnormalized throttle \r\n");
     pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
             f_throttle[FL], f_throttle[FR], f_throttle[RL], f_throttle[RR]);
@@ -790,10 +788,10 @@ void TorqueVectoringSystem::process_accel()
     pc.printf("Handle sensor value : %f\r\n", Handle_Sensor.read());
 
 
-    // f_wheel_angle_deg = CalHandlingVolt2WheelSteeringAngle(Handle_Sensor.read());
-    f_wheel_angle_deg = map_f(Handle_Sensor.read(), RESISTOR_RIGHT_MAX, RESISTOR_LEFT_MAX, -61.252, 61.252);
-    if (f_wheel_angle_deg < -61.252)    f_wheel_angle_deg = -61.252;
-    if (f_wheel_angle_deg > 61.252)     f_wheel_angle_deg = 61.252;
+    f_wheel_angle_deg = map_f(Handle_Sensor.read(), RESISTOR_RIGHT_MAX, RESISTOR_LEFT_MAX,
+        (-1.0)*MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);
+    if (f_wheel_angle_deg < (-1.0)*MAX_STEERING_ANGLE)      f_wheel_angle_deg = (-1.0)*MAX_STEERING_ANGLE;
+    if (f_wheel_angle_deg > MAX_STEERING_ANGLE)             f_wheel_angle_deg = MAX_STEERING_ANGLE;
     pc.printf("wheel angle : %f\r\n",f_wheel_angle_deg);
     ///////////////////////////////////////////////////////////////
 

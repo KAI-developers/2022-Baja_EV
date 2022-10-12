@@ -12,12 +12,11 @@
 
 #define WHEEL_RADIUS                    (0.53 / 2.0) // ev wheel
 #define GEAR_RATIO                      5.27
-//#define PI                              3.141592
 
 
 #define DEFAULT_VOLTAGE_INPUT           0.61
-#define RESISTOR_LEFT_MAX               0.8
-#define RESISTOR_RIGHT_MAX              0.2
+#define RESISTOR_LEFT_MAX               0.858
+#define RESISTOR_RIGHT_MAX              0.195
 
 #define MAX_RESISTOR_ANGLE              300.0
 #define MAX_RESISTOR_LIMITED_ANGLE      240.0
@@ -77,8 +76,8 @@
 #define IDEAL_OPAMP_GAIN                1.515
 
 
-#define PEDAL_MIN_VALUE                 0.213       // mbed analogread value
-#define PEDAL_MAX_VALUE                 0.68        // mbed analogread value
+#define PEDAL_MIN_VALUE                 0.2         // mbed analogread value
+#define PEDAL_MAX_VALUE                 0.66        // mbed analogread value
 
 
 #define THROTTLE_MIN                    0
