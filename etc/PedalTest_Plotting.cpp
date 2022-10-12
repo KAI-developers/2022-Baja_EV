@@ -44,7 +44,7 @@ int main() {
     time.start();
     
     
-
+    AnalogIn steering(p19);
     AnalogIn pedal(p20);
     PwmOut throttle_out_FL(p21);
     PwmOut throttle_out_FR(p22);
@@ -54,6 +54,7 @@ int main() {
     
     float pedal_read_value;
     float modified_pedal_value;
+    float steering_value;
 
     throttle_out_FL.period_us(PERIOD_US);
     throttle_out_FR.period_us(PERIOD_US);
@@ -61,7 +62,7 @@ int main() {
     throttle_out_RR.period_us(PERIOD_US);
 
     while(1) {
-
+        steering_value = steering.read();
         pedal_read_value = pedal.read();
 //        pc.printf("pedal raw value (0.0 ~ 1.0) : %f \r\n", pedal_read_value);
 
@@ -100,8 +101,8 @@ int main() {
             plot.reset();
 
             // put data to buffer
-            plot.put(pedal_read_value ,0);
-
+            // plot.put(pedal_read_value ,0);
+            plot.put(steering_value, 0);
             // send buffer
             plot.send(&pc);
         }
