@@ -262,7 +262,7 @@ namespace kai_msgs
         }
 
         const char * getType() { return "driver_system/CarState"; };
-        const char * getMD5() { return "9d781d5f9902017535bcd729642f2fe7"; };
+        const char * getMD5() { return "1bc4e610b1c18e17bd80c7525780cdc0"; };
 
     };
 }
