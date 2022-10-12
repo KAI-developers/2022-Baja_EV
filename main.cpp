@@ -29,17 +29,17 @@
     Especially thanks to Jiwon Seok, A.K.A. PowerRanger RED
 */
 
-
+#include <iostream>
 #include "TorqueVectoringSystem.h"
 
-//#include "ros.h"
-//#include "CarState.h"
+#include "ros.h"
+#include "CarState.h"
 
 
 // #include "AutonomousMessage.h"
 // #include "std_msgs/Float32.h"
 // #include "std_msgs/Int8.h"
-//#include <iostream>
+
 
 
 
@@ -99,26 +99,21 @@ void CarDriving() {
 
 void ROSPub() {
 
-    // kai_msgs::CarState kai_msg;
-    // ros::Publisher carstate("carstate", &kai_msg);
+    kai_msgs::CarState kai_msg;
+    ros::Publisher carstate("carstate", &kai_msg);
 
-    // ros::NodeHandle nh;
-    // nh.initNode();
-
-    // nh.advertise(carstate);
+    ros::NodeHandle nh;
+    nh.initNode();
+    nh.advertise(carstate);
 
 
     
     while(1) 
     {
-        // publishing part
-        // auto_msg.c_autonomous_state = global_autonomous_state;
-        // auto_msg.f_car_speed = global_velocity_ms;
-
-        // autonomous_message.publish ( &auto_msg );
+        carstate.publish (&kai_msg);
   
-        // nh.spinOnce();
-        // wait_ms(50);
+        nh.spinOnce();
+        wait_ms(50);
     }
 
 } 
@@ -128,10 +123,10 @@ void ROSPub() {
 
 int main(){
 
-    // Thread thread_ROS, thread_accel;
-    // thread_accel.start(CarDriving);
-    // thread_ROS.start(ROSPub);
-    CarDriving();
+    Thread thread_accel;
+    thread_accel.start(CarDriving);
+    
+    ROSPub();
 }
 
 

@@ -454,9 +454,9 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
         f_feedforward_throttle_RL = 0.0;
         f_feedforward_throttle_RR = 0.0;
 
-        pc.printf("\tnormalized throttle \r\n");
-        pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
-            f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR);
+        // pc.printf("\tnormalized throttle \r\n");
+        // pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            // f_feedforward_throttle_FL, f_feedforward_throttle_FR, f_feedforward_throttle_RL, f_feedforward_throttle_RR);
         return -1;
     }
 
@@ -532,7 +532,8 @@ bool TorqueVectoringSystem::WheelSteeringAngle2Throttle(float f_wheel_steering_a
 
 
     // pc.printf("\tnormalized throttle \r\n");
-    // pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n", f_throttle[FL], f_throttle[FR], f_throttle[RL], f_throttle[RR]);
+    // pc.printf("\tFL : %f, FR : %f, RL : %f, RR : %f\r\n",
+            // f_throttle[FL], f_throttle[FR], f_throttle[RL], f_throttle[RR]);
 
     // 안전장치
     for (dir = 0; dir < 4; dir++)
