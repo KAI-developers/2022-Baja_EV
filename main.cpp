@@ -43,6 +43,10 @@
 
 
 
+float f_global_vel_RL_ms = 0.0;
+float f_global_vel_RR_ms = 0.0;
+float f_global_vehicle_vel_ms = 0.0;
+int i_global_PWR_percentage = 0;
 
 
 
@@ -87,10 +91,14 @@ void CarDriving() {
     TVS.mpu.start();
 
 
+        
     while(1) {
         
         TVS.process_accel();
-        // global_velocity_ms = TVS.f_vehicle_vel_ms;
+        f_global_vel_RL_ms = TVS.f_vel_RL_ms;
+        f_global_vel_RR_ms = TVS.f_vel_RR_ms;
+        f_global_vehicle_vel_ms = TVS.f_vehicle_vel_ms;
+        i_global_PWR_percentage = TVS.i_PWR_percentage;
     }
 }
 
@@ -106,12 +114,26 @@ void ROSPub() {
     nh.initNode();
     nh.advertise(carstate);
 
+    kai_msg.f_wheel_velocity_FL_ms = 0.0;
+    kai_msg.f_wheel_velocity_FR_ms = 0.0;
+    kai_msg.f_motor_torque_FL_Nm = 0.0;
+    kai_msg.f_motor_torque_FR_Nm = 0.0;
+    kai_msg.f_motor_torque_RL_Nm = 0.0;
+    kai_msg.f_motor_torque_RR_Nm = 0.0;
+    kai_msg.c_torque_mode_flag = TVS_ON;
+    kai_msg.c_motor_mode_flag[FL] = MOTOR_ON;
+    kai_msg.c_motor_mode_flag[FR] = MOTOR_ON;
+    kai_msg.c_motor_mode_flag[RL] = MOTOR_ON;
+    kai_msg.c_motor_mode_flag[RR] = MOTOR_ON;
 
-    
     while(1) 
     {
+        kai_msg.f_wheel_velocity_RL_ms = f_global_vel_RL_ms;
+        kai_msg.f_wheel_velocity_RR_ms = f_global_vel_RR_ms;
+        kai_msg.f_car_velocity_ms = f_global_vehicle_vel_ms;
+        kai_msg.i_throttle = i_global_PWR_percentage;
+
         carstate.publish (&kai_msg);
-  
         nh.spinOnce();
         wait_ms(50);
     }
