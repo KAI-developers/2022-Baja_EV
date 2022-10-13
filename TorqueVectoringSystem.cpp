@@ -837,13 +837,13 @@ void TorqueVectoringSystem::process_accel()
     
 
 
-
+    /*
     PIDYawRate2Throttle(f_yawrate_input_deg, f_yaw_rate_meas_filtered_degs,
         f_PID_throttle_FL, f_PID_throttle_FR,
         f_PID_throttle_RL, f_PID_throttle_RR);
     pc.printf("P controlled throttle output \r\n");
     pc.printf("FL : %f, FR : %f, RL : %f, RR : %f\r\n", f_PID_throttle_FL, f_PID_throttle_FR, f_PID_throttle_RL, f_PID_throttle_RR);
-
+    */
 
 
     f_output_throttle_FL = f_feedforward_throttle_FL + f_PID_throttle_FL;
