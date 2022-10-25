@@ -101,8 +101,8 @@ int main() {
             plot.reset();
 
             // put data to buffer
-            // plot.put(pedal_read_value ,0);
-            plot.put(steering_value, 0);
+            plot.put(pedal_read_value ,0);
+            // plot.put(steering_value, 0);
             // send buffer
             plot.send(&pc);
         }
