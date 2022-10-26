@@ -39,10 +39,25 @@
 
 
 
+#define STEERING_PPR                         16384
+
+#define STEERING_EXTERNAL_SPEED     1
+#define STEERING_INTERNAL_SPEED     0
+
+#define STEERING_CCW                1
+#define STEERING_CW                 0
+
+#define STEERING_BRAKE_OFF          1
+#define STEERING_BRAKE_ON           0
+
+#define STEERING_STOP               1
+#define STEERING_RUN                0
+
+#define STEERING_MAX_RPM            3300.0  // MD200 최대 5000RPM으로 설정 시 mbed가 인가하는 최대RPM신호 근사값
+
 
 class actuator {
-public:
-
+private:
     PwmOut BRAKE_PUL_PLUS;
     DigitalOut BRAKE_DIR_PLUS;
     DigitalOut BRAKE_ENA_PLUS;
@@ -54,7 +69,17 @@ public:
 
     float brake_pulse_per_rev;
     float brake_degree_per_pulse;
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+    DigitalOut STEERING_INT_SPEED;
+    DigitalOut STEERING_DIR;
+    DigitalOut STEERING_START_STOP;
+    DigitalOut STEERING_RUN_BRAKE;
+    PwmOut STEERING_SPEED;     // need to erase when using constant velocity
 
+
+
+public:
     void brakeCount1ms();
     float brakeDegreePerPulse(float pulse_per_rev);
 
@@ -65,8 +90,16 @@ public:
     void brakeSetRPS(float speed_rps);
     void brakeTurnAngle(float angle_deg, int dir, float speed_rps);
     void brake_stop_ms(float ms);
-
-
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+    void steeringSetINT_SPEED(int mode);                          // EXTERNAL_SPEED or INTERNAL_SPEED
+    
+    void steeringEnableBrake(int action);                         // BRAKE_OFF or BRAKE_ON (START/STOP 핀)
+    void steeringRunMotor(int dir, int action);                   // CW or CCW, RUN or STOP (BRK&PULSE_IN 핀), for INTERNAL_SPEED setting
+    void steeringRunMotor(int dir, int action, float speed_RPM);  // CW/CCW, RUN/STOP, input speed (SPEED 핀)
+    
+    // 안 쓸 예정
+    void steeringSetDIR(int dir);
 };
 
 
